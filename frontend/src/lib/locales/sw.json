@@ -1,0 +1,908 @@
+{
+    "common": {
+        "loading": "Inapakia...",
+        "cancel": "Ghairi",
+        "save": "Hifadhi",
+        "delete": "Futa",
+        "edit": "Hariri",
+        "actions": "Vitendo",
+        "logout": "Toka",
+        "confirm": "Thibitisha",
+        "yes": "Ndiyo",
+        "no": "Hapana",
+        "no_data": "Hakuna data inayopatikana",
+        "save_changes": "Hifadhi Mabadiliko",
+        "start_date": "Tarehe ya Kuanza",
+        "end_date": "Tarehe ya Mwisho",
+        "sold": "zimeuzwa",
+        "rev": "mapato",
+        "no_results": "Hakuna matokeo yaliyopatikana.",
+        "clear_filters": "Ondoa Vichujio",
+        "previous": "Nyuma",
+        "next": "Mbele",
+        "page_info": "Ukurasa {{current}} kati ya {{total}}",
+        "restore": "Rejesha",
+        "print": "Chapisha",
+        "open_menu": "Fungua menyu",
+        "language_placeholder": "Lugha",
+        "language_sw": "Kiswahili (SW)",
+        "language_en": "English (EN)",
+        "error": {
+            "title": "Samahani!",
+            "subtitle": "Kuna hitilafu imetokea",
+            "default_message": "Hitilafu isiyotarajiwa imetokea. Tafadhali jaribu tena baadaye.",
+            "try_again": "Jaribu Tena",
+            "go_home": "Rudi Nyumbani",
+            "load_failed": "Imeshindwa kupakia data: {{message}}"
+        },
+        "crop": {
+            "title": "Kata Picha",
+            "description": "Rekebisha picha ili ilingane na umbo linalohitajika.",
+            "zoom": "Kuza",
+            "save": "Kata na Uhifadhi"
+        },
+        "theme": {
+            "toggle": "Badilisha mandhari",
+            "light": "Mwanga",
+            "dark": "Giza",
+            "system": "Mfumo"
+        },
+        "not_found": {
+            "title": "Ukurasa Haujapatikana",
+            "description": "Samahani, ukurasa unaoutafuta haupo au umehamishwa.",
+            "go_home": "Rudi Nyumbani"
+        }
+    },
+    "auth": {
+        "welcome_back": "Karibu tena",
+        "sign_in_subtitle": "Ingia kwenye akaunti yako ili kuendelea.",
+        "email": "Barua pepe",
+        "password": "Nenosiri",
+        "sign_in": "Ingia",
+        "signing_in": "Inaingia...",
+        "dont_have_account": "Huna akaunti?",
+        "register": "Jisajili",
+        "forgot_password": "Umesahau nenosiri?",
+        "login_failed": "Kuingia kumeshindikana. Tafadhali hakiki taarifa zako.",
+        "email_placeholder": "m.scott@dundermifflin.com",
+        "password_placeholder": "••••••••",
+        "demo_account": "Tumia akaunti ya majaribio:",
+        "logout_failed": "Kutoka kumeshindikana: {{message}}",
+        "update_avatar_failed": "Imeshindwa kubadilisha picha ya wasifu: {{message}}",
+        "update_password_success": "Nenosiri limebadilishwa kikamilifu",
+        "update_password_failed": "Imeshindwa kubadilisha nenosiri: {{message}}"
+    },
+    "sidebar": {
+        "summary": "Muhtasari",
+        "pos": "POS",
+        "date": "Tarehe",
+        "transactions": "Miamala",
+        "product": "Bidhaa",
+        "promotions": "Promosheni",
+        "reports": "Ripoti",
+        "users": "Watumiaji",
+        "settings": "Mipangilio",
+        "account": "Akaunti",
+        "activity_logs": "Kumbukumbu za Shughuli",
+        "customers": "Wateja"
+    },
+    "transactions": {
+        "title": "Miamala",
+        "subtitle": "Fuatilia oda na simamia malipo.",
+        "filter_user": "Makeshia Wote",
+        "tabs": {
+            "active": "Zinazoendelea",
+            "history": "Historia",
+            "cancelled": "Zilizoghairiwa"
+        },
+        "status": {
+            "open": "Wazi",
+            "in_progress": "Inashughulikiwa",
+            "served": "Imehudumiwa",
+            "paid": "Imelipwa",
+            "cancelled": "Ghairi",
+            "all": "Zote"
+        },
+        "status_badge": {
+            "paid": "IMELIPWA",
+            "unpaid": "HAIJALIPWA"
+        },
+        "table": {
+            "queue": "Foleni",
+            "type": "Aina",
+            "cashier": "Keshia",
+            "items": "Bidhaa",
+            "total": "Jumla",
+            "status": "Hali",
+            "action": "Kitendo",
+            "no_data": "Hakuna miamala iliyopatikana kwa kichujio hiki."
+        },
+        "actions_button": {
+            "pay": "Lipa",
+            "complete": "Kamilisha",
+            "cancel": "Ghairi",
+            "refund": "Rejesha Pesa"
+        },
+        "cancellation_dialog": {
+            "title": "Ghairi Oda",
+            "description": "Tafadhali chagua sababu ya kughairi oda",
+            "reason_label": "Sababu",
+            "reason_placeholder": "Chagua sababu",
+            "notes_label": "Maelezo ya Ziada",
+            "notes_placeholder": "Maelezo ya hiari...",
+            "confirm": "Ghairi Oda",
+            "cancel": "Rudi"
+        },
+        "refund_dialog": {
+            "title": "Rejesha Pesa za Oda",
+            "description": "Una uhakika unataka kurejesha pesa za oda hii?",
+            "warning": "Kitendo hiki kitaghairi bidhaa na kuzirudisha kwenye stoku.",
+            "reason_label": "Sababu",
+            "reason_placeholder": "Chagua sababu"
+        },
+        "payment_dialog": {
+            "title": "Kamilisha Malipo",
+            "description": "Shughulikia malipo ya Foleni",
+            "total_amount": "Jumla ya Malipo",
+            "select_method": "Chagua Njia ya Malipo",
+            "cash_received": "Fedha Iliyopokelewa",
+            "change_due": "Chenji",
+            "confirm": "Thibitisha Malipo",
+            "money_insufficient": "Fedha haitoshi!",
+            "success": "Malipo Yamefanikiwa! Chenji:"
+        },
+        "messages": {
+            "fetch_error": "Imeshindwa kupakia miamala",
+            "cancel_notes_required": "Maelezo ya kughairi yanahitajika",
+            "order_finished": "Oda imekamilika",
+            "use_action_button": "Tafadhali tumia vitufe vya vitendo"
+        }
+    },
+    "dashboard": {
+        "title": "Muhtasari wa Dashibodi",
+        "welcome_subtitle": "Haya ndiyo yanayoendelea kwenye duka lako leo.",
+        "toggle_nav": "Fungua/funga menyu ya urambazaji",
+        "widgets": {
+            "quick_actions": "Vitendo vya Haraka",
+            "quick_actions_desc": "Simamia duka lako kwa ufanisi",
+            "manage_products": "Simamia Bidhaa",
+            "view_reports": "Ona Ripoti Kamili",
+            "sales_trend": "Mwenendo wa Mauzo (Siku 30 Zilizopita)",
+            "top_products": "Bidhaa Zinazoongoza",
+            "quantity": "Idadi",
+            "revenue": "Mapato",
+            "payment_distribution": "Njia za Malipo",
+            "cashier_performance": "Utendaji wa Makeshia"
+        },
+        "stats": {
+            "from_last_month": "kutoka mwezi uliopita",
+            "since_last_hour": "tangu saa iliyopita",
+            "today_sales": "Mauzo ya Leo",
+            "today_orders": "Oda za Leo",
+            "active_today": "Wanaofanya Kazi Leo",
+            "all_time": "Tangu Mwanzo"
+        },
+        "total_revenue": "Jumla ya Mapato",
+        "total_orders": "Jumla ya Oda",
+        "active_cashiers": "Makeshia Waliopo Kazini",
+        "total_products": "Jumla ya Bidhaa",
+        "active_users": "Watumiaji Hai",
+        "sales": "Mauzo",
+        "active_now": "Wapo Mtandaoni Sasa",
+        "brand_name": "POS Fiplex",
+        "secret_reports": "Ukurasa wa Ripoti za Siri (Admin Pekee)",
+        "placeholder_content": "Maudhui mengine yanaweza kuwekwa hapa..."
+    },
+    "reports": {
+        "title": "Uchambuzi wa Ripoti",
+        "subtitle": "Taarifa za kina kuhusu utendaji wa biashara yako.",
+        "export_csv": "Pakua CSV",
+        "tabs": {
+            "sales": "Mauzo",
+            "products": "Bidhaa",
+            "profit": "Faida",
+            "performance": "Utendaji",
+            "cancellations": "Ughairi",
+            "low_stock": "Stoku Ndogo",
+            "promotions": "Promosheni",
+            "shifts": "Zamu"
+        },
+        "sales": {
+            "title": "Muhtasari wa Mauzo",
+            "description": "Mapato ya mauzo ya kila siku na idadi ya oda kwa muda.",
+            "revenue": "Jumla ya Mapato",
+            "orders": "Idadi ya Oda"
+        },
+        "products": {
+            "title": "Utendaji wa Bidhaa",
+            "description": "Bidhaa zinazouzwa zaidi kwa idadi na mapato.",
+            "product": "Bidhaa",
+            "quantity": "Idadi Iliyouzwa",
+            "revenue": "Jumla ya Mapato",
+            "stock": "Stoku"
+        },
+        "performance": {
+            "payment_methods": "Mgawanyo wa Njia za Malipo",
+            "cashier": "Orodha ya Ubora wa Makeshia",
+            "staff": "Mfanyakazi",
+            "orders": "Jumla ya Oda",
+            "sales": "Jumla ya Mauzo"
+        },
+        "cancellations": {
+            "title": "Ripoti ya Ughairi",
+            "description": "Uchambuzi wa oda zilizoghairiwa na sababu zake.",
+            "reason": "Sababu",
+            "date": "Tarehe",
+            "count": "Jumla ya Idadi"
+        },
+        "profit": {
+            "title": "Uchambuzi wa Faida",
+            "description": "Chambua mapato yako, gharama ya mauzo (COGS), na faida ghafi.",
+            "revenue": "Mapato",
+            "cogs": "Gharama ya Mauzo",
+            "gross_profit": "Faida Ghafi",
+            "products": "Faida kwa Bidhaa",
+            "products_desc": "Uchambuzi wa faida kwa kila bidhaa.",
+            "profit": "Faida"
+        },
+        "start_date": "Tarehe ya Kuanza",
+        "end_date": "Tarehe ya Mwisho",
+        "low_stock": {
+            "title": "Bidhaa zenye Stoku Ndogo",
+            "description": "Bidhaa zenye stoku chini ya kiwango cha chini."
+        },
+        "promotions": {
+            "title": "Promosheni Zinazoendelea",
+            "description": "Angalia ufanisi wa promosheni.",
+            "name": "Jina la Promosheni",
+            "discount": "Punguzo",
+            "type": "Aina"
+        },
+        "shifts": {
+            "title": "Zamu za Kazi",
+            "description": "Fuatilia ulinganifu wa fedha kwa usahihi.",
+            "status": "Hali",
+            "expected": "Inayotarajiwa",
+            "actual": "Halisi",
+            "diff": "Tofauti"
+        }
+    },
+    "account": {
+        "title": "Akaunti",
+        "subtitle": "Simamia mipangilio na mapendeleo ya akaunti yako.",
+        "tabs": {
+            "profile": "Wasifu",
+            "security": "Usalama"
+        },
+        "avatar": {
+            "title": "Picha ya Wasifu",
+            "description": "Badilisha picha yako ya wasifu.",
+            "success": "Picha ya wasifu imebadilishwa kikamilifu!",
+            "error": "Imeshindwa kubadilisha picha ya wasifu.",
+            "upload_button": "Pakia Picha Mpya"
+        },
+        "password": {
+            "title": "Nenosiri na Usalama",
+            "description": "Badilisha nenosiri lako ili kulinda akaunti yako.",
+            "current_password": "Nenosiri la Sasa",
+            "new_password": "Nenosiri Jipya",
+            "confirm_password": "Thibitisha Nenosiri Jipya",
+            "button": "Badilisha Nenosiri",
+            "error_match": "Manenosiri mapya hayalingani.",
+            "success": "Nenosiri limebadilishwa kikamilifu!",
+            "error_fail": "Imeshindwa kubadilisha nenosiri."
+        }
+    },
+    "settings": {
+        "title": "Mipangilio",
+        "description": "Simamia mipangilio na usanidi wa programu.",
+        "tabs": {
+            "cancellation": "Sababu za Ughairi",
+            "category": "Kategoria",
+            "payment_methods": "Njia za Malipo",
+            "branding": "Chapa",
+            "printer": "Printa"
+        },
+        "cancellation": {
+            "title": "Sababu za Ughairi",
+            "add_button": "Ongeza Sababu",
+            "description": "Simamia sababu za kawaida za kughairi miamala.",
+            "table": {
+                "reason": "Sababu",
+                "description": "Maelezo",
+                "status": "Hali",
+                "empty": "Hakuna sababu za ughairi zilizopatikana."
+            },
+            "status": {
+                "active": "Inatumika",
+                "inactive": "Haitumiki"
+            }
+        },
+        "category": {
+            "title": "Kategoria za Bidhaa",
+            "description": "Panga bidhaa zako katika kategoria.",
+            "add_button": "Ongeza Kategoria",
+            "table": {
+                "name": "Jina",
+                "created_at": "Ilitengenezwa",
+                "actions": "Vitendo",
+                "empty": "Hakuna kategoria. Tengeneza moja ili kuanza."
+            },
+            "actions": {
+                "edit": "Hariri Maelezo",
+                "delete": "Futa Kategoria",
+                "delete_title": "Futa Kategoria?",
+                "delete_confirm": "Una uhakika unataka kufuta",
+                "delete_warning": "Kitendo hiki hakiwezi kutenduliwa.",
+                "cancel": "Ghairi",
+                "delete_button": "Futa",
+                "deleting": "Inafuta..."
+            },
+            "form": {
+                "title_add": "Kategoria Mpya",
+                "title_edit": "Hariri Kategoria",
+                "desc_add": "Tengeneza kategoria mpya ya bidhaa.",
+                "desc_edit": "Badilisha jina la kategoria.",
+                "name_label": "Jina",
+                "name_placeholder": "mf. Vinywaji, Vitafunwa",
+                "save": "Hifadhi Mabadiliko",
+                "saving": "Inahifadhi..."
+            }
+        },
+        "payment_methods": {
+            "title": "Njia za Malipo",
+            "description": "Njia za malipo zinazopatikana kwa miamala ya POS.",
+            "empty": "Hakuna njia za malipo zilizopatikana."
+        },
+        "branding": {
+            "title": "Chapa ya Programu",
+            "description": "Badilisha jina la programu, nembo, na maandishi ya chini.",
+            "app_name": "Jina la Programu",
+            "logo": "Nembo ya Programu",
+            "footer_text": "Maandishi ya Chini",
+            "theme_color": "Rangi ya Mandhari (Hali ya Mwanga)",
+            "theme_color_dark": "Rangi ya Mandhari (Hali ya Giza)",
+            "save_success": "Mipangilio imehifadhiwa kikamilifu",
+            "save_error": "Imeshindwa kuhifadhi mipangilio",
+            "update_success": "Mipangilio ya chapa imebadilishwa kikamilifu!",
+            "update_error": "Imeshindwa kubadilisha chapa",
+            "uploading": "Inapakia nembo...",
+            "upload_success": "Nembo imepakiwa kikamilifu",
+            "upload_error": "Imeshindwa kupakia nembo",
+            "no_logo": "Hakuna Nembo",
+            "upload_button": "Pakia Nembo Mpya",
+            "remove_button": "Ondoa/Futa",
+            "logo_help": "Ukubwa unaopendekezwa: 512x512px. Kiwango cha juu 5MB. Thamani hubadilika mara moja baada ya kupakia.",
+            "app_name_placeholder": "POS Fiplex",
+            "footer_placeholder": "© 2024 POS Fiplex",
+            "logo_alt": "Nembo ya Programu",
+            "color_placeholder": "#000000",
+            "color_dark_placeholder": "#ffffff"
+        },
+        "printer": {
+            "title": "Mipangilio ya Printa",
+            "description": "Sanidi muunganisho wa printa yako ya risiti.",
+            "connection": "URI ya Muunganisho wa Printa",
+            "connection_placeholder": "socket://127.0.0.1:9100",
+            "paper_width": "Upana wa Karatasi",
+            "auto_print": "Chapisha Kiotomatiki Baada ya Malipo",
+            "test_print": "Jaribu Kuchapisha",
+            "update_success": "Mipangilio ya printa imebadilishwa kikamilifu!",
+            "update_error": "Imeshindwa kubadilisha mipangilio ya printa",
+            "save_failed": "Imeshindwa kuhifadhi mipangilio",
+            "print_success": "Risiti imechapishwa kikamilifu",
+            "print_failed": "Imeshindwa kuchapisha risiti",
+            "ip_help": "Itapuuzwa ikiwa si printa ya mtandao",
+            "connected": "Imeunganishwa",
+            "connection_failed": "Muunganisho umeshindikana",
+            "test_print_success": "Jaribio la kuchapisha limefanikiwa",
+            "test_print_error": "Jaribio la kuchapisha limeshindikana",
+            "interface_type": "Aina ya Muunganisho",
+            "connected_to": "Imeunganishwa na",
+            "not_connected": "Haijaunganishwa",
+            "reconnect": "Unganisha Tena",
+            "connect": "Unganisha",
+            "fe_help": "Kivinjari kinashughulikia muunganisho wa printa moja kwa moja",
+            "printer_ip": "IP / URL ya Printa",
+            "fe_lan_help": "Weka IP ya Printa ya LAN. Mf: 192.168.1.200",
+            "print_method": "Njia ya Muunganisho wa Printa",
+            "method_be": "Muunganisho wa Mtandao (LAN / Wi-Fi)",
+            "method_fe": "Muunganisho wa Bluetooth",
+            "method_be_desc": "Printa imeunganishwa kwenye mtandao mmoja na seva (Inapendekezwa kwa printa za kudumu)",
+            "method_fe_desc": "Printa imeunganishwa moja kwa moja na kifaa hiki (Inapendekezwa kwa printa za kubebeka)",
+            "discovery_title": "Tafuta Printa za Mtandao",
+            "discovery_desc": "Tafuta printa za joto zinazopatikana kwenye mtandao wako (Port 9100).",
+            "scan_now": "Skani Mtandao wa Ndani",
+            "discovered_count": "Printa Zilizopatikana",
+            "discovery_completed": "Utafutaji wa printa umekamilika",
+            "discovery_failed": "Imeshindwa kutafuta printa",
+            "help_text": "Tumia socket://IP:PORT kwa printa za mtandao (mf. 192.168.1.100:9100).",
+            "bluetooth": "Bluetooth",
+            "lan": "LAN / Mtandao",
+            "lan_placeholder": "mf. 192.168.1.200 au http://192.168.1.200:80/print",
+            "paper_58": "58mm",
+            "paper_80": "80mm"
+        }
+    },
+    "users": {
+        "loading": "Inapakia hali ya zamu...",
+        "register_open": "Kasha Limefunguliwa",
+        "open_register": "Fungua Kasha",
+        "open_shift_title": "Anza Zamu",
+        "title": "Watumiaji",
+        "description": "Simamia ruhusa na majukumu ya watumiaji.",
+        "add_button": "Ongeza Mtumiaji",
+        "search_placeholder": "Tafuta mtumiaji...",
+        "role_filter": "Jukumu",
+        "role_all": "Majukumu Yote",
+        "roles": {
+            "admin": "Admin",
+            "manager": "Meneja",
+            "cashier": "Keshia"
+        },
+        "table": {
+            "avatar": "Picha",
+            "user": "Mtumiaji",
+            "role": "Jukumu",
+            "status": "Hali",
+            "actions": "Vitendo",
+            "empty": "Hakuna watumiaji waliopatikana."
+        },
+        "status": {
+            "active": "Hai",
+            "inactive": "Amezimwa"
+        },
+        "actions": {
+            "open_menu": "Fungua menyu",
+            "edit": "Hariri Maelezo",
+            "activate": "Washa Akaunti",
+            "deactivate": "Zima Akaunti",
+            "delete": "Futa Mtumiaji",
+            "delete_title": "Una uhakika kabisa?",
+            "delete_desc": "Kitendo hiki hakiwezi kutenduliwa. Kitafuta kabisa akaunti ya mtumiaji",
+            "delete_desc_2": "na kuondoa data yake kwenye seva zetu.",
+            "cancel": "Ghairi",
+            "delete_confirm": "Futa",
+            "deleting": "Inafuta..."
+        },
+        "form": {
+            "title_create": "Tengeneza Mtumiaji Mpya",
+            "title_edit": "Hariri Mtumiaji",
+            "desc_create": "Ongeza mtumiaji mpya kwenye mfumo.",
+            "desc_edit": "Badilisha maelezo ya mtumiaji. Nenosiri haliwezi kubadilishwa hapa.",
+            "username": "Jina la mtumiaji",
+            "email": "Barua pepe",
+            "role": "Jukumu",
+            "select_role": "Chagua jukumu",
+            "password": "Nenosiri",
+            "password_placeholder": "Nenosiri imara",
+            "save_changes": "Hifadhi Mabadiliko",
+            "create_user": "Tengeneza Mtumiaji",
+            "success_create": "Mtumiaji ametengenezwa kikamilifu",
+            "success_update": "Mtumiaji amebadilishwa kikamilifu",
+            "error_save": "Imeshindwa kuhifadhi mtumiaji"
+        },
+        "messages": {
+            "create_success": "Mtumiaji ametengenezwa kikamilifu",
+            "create_failed": "Imeshindwa kutengeneza mtumiaji: {{message}}",
+            "update_success": "Mtumiaji amebadilishwa kikamilifu",
+            "update_failed": "Imeshindwa kubadilisha mtumiaji: {{message}}",
+            "delete_success": "Mtumiaji amefutwa kikamilifu",
+            "delete_failed": "Imeshindwa kufuta mtumiaji: {{message}}",
+            "update_status_success": "Hali ya mtumiaji imebadilishwa kikamilifu",
+            "update_status_failed": "Imeshindwa kubadilisha hali: {{message}}"
+        }
+    },
+    "pagination": {
+        "page_info": "Ukurasa {{current}} kati ya {{total}}",
+        "previous": "Nyuma",
+        "next": "Mbele"
+    },
+    "products": {
+        "title": "Bidhaa",
+        "description": "Simamia stoku ya bidhaa zako.",
+        "add_button": "Ongeza Bidhaa",
+        "tabs": {
+            "active": "Bidhaa Zinazotumika",
+            "trash": "Tupio ({{count}})",
+            "list": "Mwonekano wa Orodha",
+            "grid": "Mwonekano wa Gridi"
+        },
+        "filters": {
+            "search_placeholder": "Tafuta bidhaa...",
+            "category": "Kategoria",
+            "category_all": "Kategoria Zote"
+        },
+        "table": {
+            "image": "Picha",
+            "name": "Jina",
+            "category": "Kategoria",
+            "price": "Bei",
+            "stock": "Stoku",
+            "actions": "Vitendo",
+            "empty": "Hakuna bidhaa zilizopatikana.",
+            "empty_trash": "Hakuna bidhaa kwenye tupio."
+        },
+        "card": {
+            "out_of_stock": "Imeisha",
+            "stock_left": "Zimebaki {{count}}",
+            "uncategorized": "Bila Kategoria"
+        },
+        "actions": {
+            "edit": "Hariri Bidhaa",
+            "delete": "Futa Bidhaa",
+            "restore": "Rejesha",
+            "delete_title": "Futa Bidhaa?",
+            "delete_desc": "Una uhakika unataka kufuta",
+            "delete_desc_2": "Kitendo hiki hakiwezi kutenduliwa.",
+            "deleting": "Inafuta...",
+            "cancel": "Ghairi",
+            "delete_confirm": "Futa"
+        },
+        "form": {
+            "title_create": "Tengeneza Bidhaa Mpya",
+            "title_edit": "Hariri Bidhaa",
+            "desc": "Jaza maelezo hapa chini. Bofya hifadhi ukimaliza.",
+            "upload_image": "Pakia Picha",
+            "change_image": "Badilisha Picha",
+            "name": "Jina",
+            "category": "Kategoria",
+            "select_category": "Chagua Kategoria",
+            "price": "Bei",
+            "stock": "Stoku",
+            "variants": "Aina za Bidhaa",
+            "add_variant": "Ongeza Aina",
+            "variant_name": "Jina la Aina (mf. Saizi XL)",
+            "additional_price": "Bei ya Ziada",
+            "no_variants": "Hakuna aina zilizoongezwa.",
+            "save": "Hifadhi Bidhaa",
+            "saving": "Inahifadhi...",
+            "success_create": "Bidhaa imetengenezwa!",
+            "success_update": "Bidhaa imebadilishwa!",
+            "error_category": "Tafadhali chagua kategoria",
+            "error_name_required": "Jina la bidhaa linahitajika",
+            "error_delete_variant": "Haiwezekani kufuta aina zilizopo (kikwazo cha API)",
+            "tab_details": "Maelezo",
+            "tab_history": "Historia",
+            "cost_price": "Bei ya Gharama"
+        },
+        "messages": {
+            "create_success": "Bidhaa imetengenezwa kikamilifu",
+            "create_error": "Imeshindwa kutengeneza bidhaa",
+            "update_success": "Bidhaa imebadilishwa kikamilifu",
+            "update_error": "Imeshindwa kubadilisha bidhaa",
+            "delete_success": "Bidhaa imefutwa kikamilifu",
+            "delete_error": "Imeshindwa kufuta bidhaa",
+            "upload_image_success": "Picha ya bidhaa imepakiwa kikamilifu",
+            "upload_image_error": "Imeshindwa kupakia picha",
+            "create_variant_success": "Aina ya bidhaa imetengenezwa kikamilifu",
+            "create_variant_error": "Imeshindwa kutengeneza aina",
+            "update_variant_success": "Aina imebadilishwa kikamilifu",
+            "update_variant_error": "Imeshindwa kubadilisha aina",
+            "upload_variant_image_success": "Picha ya aina imepakiwa kikamilifu",
+            "upload_variant_image_error": "Imeshindwa kupakia picha ya aina",
+            "restore_success": "Bidhaa imerejeshwa kikamilifu",
+            "restore_error": "Imeshindwa kurejesha bidhaa"
+        },
+        "stock_history": {
+            "no_history": "Hakuna historia ya stoku iliyopatikana.",
+            "type_sale": "Mauzo",
+            "type_restock": "Kuongeza Stoku",
+            "type_correction": "Masahihisho",
+            "type_return": "Marejesho",
+            "type_damage": "Uharibifu",
+            "date": "Tarehe",
+            "type": "Aina",
+            "amount": "Kiasi",
+            "initial_stock": "Stoku ya Awali",
+            "final_stock": "Stoku ya Mwisho",
+            "note": "Maelezo"
+        }
+    },
+    "promotions": {
+        "title": "Promosheni",
+        "description": "Simamia promosheni na punguzo kwa wateja.",
+        "add_button": "Ongeza Promosheni",
+        "table": {
+            "name": "Jina la Promosheni",
+            "scope": "Wigo",
+            "discount": "Punguzo",
+            "period": "Kipindi",
+            "status": "Hali",
+            "actions": "Vitendo",
+            "empty": "Hakuna promosheni bado.",
+            "max": "Kiwango cha juu:"
+        },
+        "tabs": {
+            "active": "Zinazotumika",
+            "trash": "Tupio"
+        },
+        "status": {
+            "active": "Inatumika",
+            "inactive": "Haitumiki"
+        },
+        "actions": {
+            "open_menu": "Fungua menyu"
+        },
+        "delete_toast_success": "Promosheni imefutwa",
+        "delete_toast_error": "Imeshindwa kufuta promosheni",
+        "delete_title": "Futa Promosheni",
+        "delete_confirm": "Una uhakika unataka kufuta promosheni hii? Itahamishiwa kwenye tupio.",
+        "restore_title": "Rejesha Promosheni",
+        "restore_confirm": "Una uhakika unataka kurejesha promosheni hii?",
+        "form": {
+            "title_create": "Tengeneza Promosheni Mpya",
+            "title_edit": "Hariri Promosheni",
+            "desc": "Jaza maelezo ya promosheni hapa chini.",
+            "name": "Jina la Promosheni",
+            "name_placeholder": "mf. Mauzo ya Mwisho wa Mwaka",
+            "description": "Maelezo",
+            "scope": "Wigo",
+            "discount_type": "Aina ya Punguzo",
+            "discount_value": "Thamani ya Punguzo",
+            "max_discount": "Kiwango cha Juu cha Punguzo",
+            "start_date": "Tarehe ya Kuanza",
+            "end_date": "Tarehe ya Mwisho",
+            "is_active": "Washa Promosheni",
+            "rules": "Masharti ya Promosheni",
+            "add_rule": "Ongeza Sharti",
+            "rule_type": "Aina ya Sharti",
+            "rule_value": "Thamani ya Sharti",
+            "rule_desc": "Maelezo ya Sharti",
+            "targets": "Malengo ya Promosheni",
+            "add_target": "Ongeza Lengo",
+            "target_type": "Aina ya Lengo",
+            "target_id": "Kitambulisho cha Lengo",
+            "save": "Hifadhi Promosheni",
+            "saving": "Inahifadhi...",
+            "success_create": "Promosheni imetengenezwa kikamilifu!",
+            "success_update": "Promosheni imebadilishwa kikamilifu!",
+            "pick_date": "Chagua tarehe",
+            "select_scope": "Chagua wigo",
+            "select_product": "Chagua Bidhaa",
+            "select_category": "Chagua Kategoria",
+            "rule_min_order_amount": "Kiwango cha Chini cha Oda",
+            "rule_required_product": "Bidhaa Inayohitajika",
+            "rule_required_category": "Kategoria Inayohitajika"
+        },
+        "types": {
+            "percentage": "Asilimia",
+            "fixed_amount": "Kiasi Maalum",
+            "product": "Bidhaa",
+            "category": "Kategoria"
+        },
+        "scope": {
+            "ORDER": "Oda",
+            "ITEM": "Bidhaa"
+        },
+        "messages": {
+            "restore_success": "Promosheni imerejeshwa kikamilifu",
+            "create_success": "Promosheni imetengenezwa kikamilifu",
+            "update_success": "Promosheni imebadilishwa kikamilifu",
+            "delete_success": "Promosheni imefutwa kikamilifu"
+        }
+    },
+    "order": {
+        "search_placeholder": "Tafuta bidhaa...",
+        "all_categories": "Zote",
+        "out_of_stock": "Imeisha",
+        "no_products": "Hakuna bidhaa zilizopatikana.",
+        "current_order": "Oda ya Sasa",
+        "items": "bidhaa",
+        "empty_cart": "Kikapu ni tupu",
+        "subtotal": "Jumla Ndogo",
+        "total": "Jumla",
+        "charge": "Lipisha",
+        "order_type": {
+            "dine_in": "Kula Hapa",
+            "take_away": "Chukua"
+        },
+        "refund_success": "Pesa za oda zimerejeshwa kikamilifu",
+        "select_customer": "Chagua Mteja",
+        "walk_in": "Mteja wa Kawaida",
+        "tax": "Kodi",
+        "static_qris": "QRIS ya Kudumu",
+        "errors": {
+            "invalid_cart": "Hali ya kikapu si sahihi",
+            "stock_empty": "Bidhaa imeisha",
+            "load_failed": "Imeshindwa kupakia taarifa za bidhaa",
+            "insufficient_stock": "Stoku haitoshi",
+            "create_failed": "Imeshindwa kutengeneza oda",
+            "cash_insufficient": "Fedha haitoshi!",
+            "payment_failed": "Malipo yameshindikana",
+            "select_payment": "Tafadhali chagua njia ya malipo"
+        },
+        "success": {
+            "created": "Oda imetengenezwa! Endelea na malipo.",
+            "creating": "Inatengeneza oda...",
+            "payment_complete": "Malipo yamekamilika kikamilifu",
+            "payment_success": "Malipo Yamefanikiwa! Chenji:",
+            "received": "Imepokelewa",
+            "saved": "Oda imehifadhiwa! Unaweza kulipa baadaye kwenye Miamala."
+        },
+        "payment_dialog": {
+            "title": "Njia ya Malipo",
+            "desc": "Chagua jinsi mteja anavyolipa. Jumla:",
+            "process_via": "Shughulikia malipo kupitia",
+            "pay": "Lipa Oda",
+            "cash_received": "Fedha Iliyopokelewa",
+            "enter_amount": "Weka kiasi",
+            "change": "Chenji",
+            "cancel": "Ghairi",
+            "pay_later": "Lipa Baadaye",
+            "payment_complete": "Malipo yamekamilika",
+            "complete": "Kamilisha Malipo",
+            "midtrans_auto_confirm": "Malipo yamethibitishwa kiotomatiki na Midtrans/Seva",
+            "cancelled_by_user": "Imeghairiwa na mtumiaji kutoka skrini ya malipo",
+            "scan_qr_static": "Skani QRIS ya Kudumu (Mfano)",
+            "confirm_payment": "Thibitisha Malipo",
+            "scan_qr_dynamic": "Skani QRIS kulipa",
+            "generate_qris_failed": "Imeshindwa kutengeneza msimbo wa QRIS kutoka Midtrans",
+            "qris_generated": "QRIS Imetengenezwa",
+            "click_to_generate": "Bofya kitufe hapo juu kutengeneza msimbo wa QR",
+            "generate_qris": "Tengeneza QRIS",
+            "discount": "Punguzo",
+            "select_promo": "Chagua Promosheni",
+            "no_promo": "Hakuna promosheni",
+            "cancel_order_btn": "Ghairi Oda",
+            "close": "Funga"
+        },
+        "variant_dialog": {
+            "title": "Chagua Aina",
+            "desc": "Chagua chaguo kwa ajili ya",
+            "original": "Asili",
+            "no_image": "Hakuna Picha"
+        },
+        "cancel_confirm": {
+            "title": "Ghairi Oda?",
+            "desc": "Una uhakika unataka kughairi oda hii? Kitendo hiki hakiwezi kutenduliwa.",
+            "yes": "Ndiyo, Ghairi Oda"
+        },
+        "qr_code_alt": "Msimbo wa QR",
+        "promo_applied": "Promosheni imetumika kikamilifu",
+        "cancel_success": "Oda imeghairiwa kikamilifu",
+        "manual_payment_success": "Malipo ya mkono yamethibitishwa kikamilifu",
+        "payment_processed": "Malipo yameshughulikiwa",
+        "status_updated": "Hali ya oda imebadilishwa",
+        "create_success": "Oda imetengenezwa kikamilifu",
+        "item_updated": "Bidhaa ya oda imebadilishwa kikamilifu",
+        "printing_invoice": "Inachapisha ankara..."
+    },
+    "errors": {
+        "unexpected_error": {
+            "title": "Samahani...",
+            "desc": "Hitilafu isiyotarajiwa imetokea wakati wa kupakia ukurasa huu."
+        },
+        "not_found": {
+            "title": "404",
+            "desc": "Ukurasa haujapatikana"
+        },
+        "go_home": "Rudi nyumbani",
+        "default_message": "Kuna hitilafu imetokea"
+    },
+    "activity_logs": {
+        "title": "Kumbukumbu za Shughuli",
+        "description": "Ona na chuja kumbukumbu za shughuli za mfumo.",
+        "list_title": "Shughuli za Mfumo",
+        "search_placeholder": "Tafuta maelezo au kitambulisho...",
+        "filters": {
+            "all_actions": "Vitendo Vyote",
+            "all_entities": "Vipengele Vyote",
+            "action_type": "Aina ya Kitendo",
+            "entity_type": "Aina ya Kipengele",
+            "user_id": "Kitambulisho cha Mtumiaji",
+            "date_range": "Chagua kipindi cha tarehe"
+        },
+        "table": {
+            "details": "Maelezo",
+            "id_prefix": "ID:",
+            "toggle": "Fungua/Funga"
+        },
+        "columns": {
+            "date": "Tarehe",
+            "user": "Mtumiaji",
+            "action": "Kitendo",
+            "entity": "Kipengele",
+            "details": "Maelezo"
+        }
+    },
+    "category": {
+        "create_success": "Kategoria imetengenezwa kikamilifu",
+        "update_success": "Kategoria imebadilishwa kikamilifu",
+        "delete_success": "Kategoria imefutwa kikamilifu"
+    },
+    "customers": {
+        "title": "Wateja",
+        "description": "Simamia taarifa na historia za wateja.",
+        "add_button": "Ongeza Mteja",
+        "search_placeholder": "Tafuta wateja...",
+        "table": {
+            "name": "Jina",
+            "phone": "Simu",
+            "email": "Barua pepe",
+            "address": "Anwani",
+            "actions": "Vitendo",
+            "empty": "Hakuna wateja waliopatikana."
+        },
+        "form": {
+            "title_create": "Ongeza Mteja Mpya",
+            "title_edit": "Hariri Mteja",
+            "desc_create": "Jaza maelezo ili kutengeneza mteja.",
+            "desc_edit": "Badilisha maelezo ya mteja.",
+            "name": "Jina",
+            "email": "Barua pepe",
+            "phone": "Simu",
+            "address": "Anwani",
+            "save_changes": "Hifadhi Mabadiliko",
+            "create_customer": "Tengeneza Mteja"
+        },
+        "messages": {
+            "create_success": "Mteja ametengenezwa kikamilifu",
+            "create_failed": "Imeshindwa kutengeneza mteja: {{message}}",
+            "update_success": "Mteja amebadilishwa kikamilifu",
+            "update_failed": "Imeshindwa kubadilisha mteja: {{message}}",
+            "delete_success": "Mteja amefutwa kikamilifu",
+            "delete_failed": "Imeshindwa kufuta mteja: {{message}}",
+            "save_failed": "Imeshindwa kuhifadhi mteja: {{message}}"
+        },
+        "actions": {
+            "open_menu": "Fungua menyu",
+            "edit": "Hariri",
+            "delete": "Futa",
+            "delete_title": "Futa Mteja",
+            "delete_desc": "Una uhakika unataka kufuta mteja huyu?",
+            "delete_desc_2": "Kitendo hiki hakiwezi kutenduliwa.",
+            "cancel": "Ghairi",
+            "deleting": "Inafuta...",
+            "delete_confirm": "Futa"
+        }
+    },
+    "shift": {
+        "loading": "Inapakia...",
+        "register_open": "Kasha Limefunguliwa",
+        "open_register": "Fungua Kasha",
+        "messages": {
+            "start_success": "Zamu imeanza kikamilifu",
+            "end_success": "Zamu imemalizika kikamilifu",
+            "transaction_recorded": "Muamala umerekodiwa"
+        },
+        "close_modal": {
+            "title": "Funga Kasha",
+            "title_summary": "Zamu Imefungwa",
+            "desc": "Hesabu fedha zilizopo kwenye kasha kisha weka kiasi ili kufunga zamu.",
+            "desc_summary": "Muhtasari wa zamu na ulinganifu wa fedha.",
+            "start_cash": "Fedha ya Kuanzia",
+            "expected_cash": "Fedha Inayotarajiwa",
+            "actual_cash": "Fedha Halisi",
+            "difference": "Tofauti",
+            "close": "Funga",
+            "password": "Nenosiri",
+            "closing": "Inafunga...",
+            "submit": "Funga Kasha"
+        },
+        "open_modal": {
+            "title": "Fungua Kasha",
+            "desc": "Weka kiasi cha fedha ya kuanzia na nenosiri lako ili kuanza.",
+            "start_cash": "Fedha ya Kuanzia",
+            "password": "Nenosiri",
+            "opening": "Inafungua...",
+            "submit": "Fungua Kasha"
+        }
+    },
+    "/": "/",
+    "main": "main",
+    "link": "link",
+    "@/components/dashboard/DashboardCharts": "@/components/dashboard/DashboardCharts",
+    "/auth/refresh": "/auth/refresh",
+    "Printing failed": {
+        " Please check printer connection": {
+            "": "Kuchapisha kumeshindikana. Tafadhali angalia muunganisho wa printa."
+        }
+    },
+    "canvas": "canvas",
+    "2d": "2d",
+    "T": "T",
+    "a": "a",
+    "cancellation": "cancellation",
+    "@/components/DevToolsPanel": "@/components/DevToolsPanel"
+}

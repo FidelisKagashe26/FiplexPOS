@@ -1,0 +1,23 @@
+
+.git
+.vscode
+.idea
+
+
+bin/
+*.exe
+*.test
+
+frontend/node_modules
+frontend/build
+frontend/dist
+frontend/.output
+frontend/.svelte-kit
+
+
+.env
+.env.local
+
+# File OS
+.DS_Store
+Thumbs.db
