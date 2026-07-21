@@ -12,8 +12,11 @@ export const useAppWebSocket = (onMessage: (event: WebSocketEvent) => void) => {
   const reconnectCountRef = useRef(0);
 
   const connect = useCallback(() => {
-    // Determine the WS URL from the API URL
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8700/api/v1';
+    // Determine the WS URL from the API URL. Defaults to the origin the SPA
+    // was served from, mirroring the REST client's relative '/api/v1' base, so
+    // a build works on any host; VITE_API_URL still overrides it when the API
+    // lives somewhere else.
+    const apiUrl = import.meta.env.VITE_API_URL || `${window.location.origin}/api/v1`;
     const wsUrl = apiUrl.replace(/^http/, 'ws') + '/ws';
 
     try {

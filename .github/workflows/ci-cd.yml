@@ -1,16 +1,19 @@
 name: CI/CD
+
 on:
   push:
     branches:
-      - master
-    tags:
-      - "v*.*.*"
+      - main
   pull_request:
     branches:
-      - master
+      - main
+
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  # GHCR rejects uppercase, so this is spelled out rather than derived from
+  # github.repository (FidelisKagashe26/FiplexPOS).
+  IMAGE_NAME: fideliskagashe26/fiplexpos
+
 jobs:
   test:
     name: Run Tests & Lints
@@ -24,19 +27,20 @@ jobs:
         with:
           go-version: "1.25"
           cache-dependency-path: backend/go.sum
+
       - name: Go Vet
         working-directory: ./backend
         run: go vet ./...
-      # - name: Go Test
-      #   run: go test -v ./...
 
       - name: Set up Bun
-        uses: oven-sh/setup-bun@v1
+        uses: oven-sh/setup-bun@v2
         with:
           bun-version: "latest"
+
       - name: Install Frontend Dependencies
         working-directory: ./frontend
         run: bun install
+
       - name: Build Frontend (SPA)
         working-directory: ./frontend
         run: bun run build
@@ -45,12 +49,12 @@ jobs:
     name: Build and Push Docker Image
     needs: test
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: github.event_name == 'push'
     permissions:
       contents: read
       packages: write
-      id-token: write
-
+    outputs:
+      image: ${{ steps.meta.outputs.tags }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -71,12 +75,11 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
             type=raw,value=latest
+            type=sha,format=long
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: ./backend/Dockerfile
@@ -87,35 +90,46 @@ jobs:
           cache-to: type=gha,mode=max
 
   deploy:
-    name: Deploy to Local VM via Tailscale
+    name: Deploy to VPS
     needs: build-and-push
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: github.event_name == 'push'
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Connect to Tailscale
-        uses: tailscale/github-action@v3
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.2.0
         with:
-          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
-
-      - name: Deploy to VM via SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.VM_TAILSCALE_IP }}
-          username: ubuntu
-          key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
           script_stop: true
+          envs: IMAGE_REF
           script: |
-            cd /home/ubuntu
-            
-            echo "Menarik image pos-fiplex terbaru dari GHCR..."
-            sudo docker compose pull
-            
-            echo "Me-restart service dengan image baru..."
-            sudo docker compose up -d
-            
-            echo "Membersihkan image versi lama untuk menghemat disk..."
-            sudo docker image prune -f
+            set -e
+            cd /opt/pos-fiplex
+
+            # Pin the exact commit that was just built, so a rollback is only
+            # ever an APP_IMAGE edit away.
+            sed -i "s|^APP_IMAGE=.*|APP_IMAGE=${IMAGE_REF}|" .env
+
+            docker compose pull
+            docker compose up -d --remove-orphans
+
+            # Fail the deploy loudly rather than leaving a broken container up.
+            for i in $(seq 1 30); do
+              if curl -fsS http://127.0.0.1:8093/healthz > /dev/null; then
+                echo "healthz OK after ${i}s"
+                exit_ok=1
+                break
+              fi
+              sleep 1
+            done
+            if [ -z "${exit_ok:-}" ]; then
+              echo "Health check failed. Recent logs:"
+              docker compose logs --tail 50 app
+              exit 1
+            fi
+
+            docker image prune -f
+        env:
+          IMAGE_REF: ghcr.io/fideliskagashe26/fiplexpos:sha-${{ github.sha }}

@@ -1,0 +1,132 @@
+# Production stack for POS Fiplex (shop.linkamall.com).
+#
+# This server already runs several unrelated systems, so the stack is designed
+# to stay strictly in its own lane:
+#   * Everything is namespaced under the "pos-fiplex" compose project.
+#   * Postgres and Redis publish NO ports — they are reachable only over the
+#     private Docker network, so they cannot collide with or be exposed
+#     alongside the other stacks on this host.
+#   * The app and MinIO publish to 127.0.0.1 only. The host's existing nginx
+#     terminates TLS (Cloudflare origin cert) and forwards to them.
+#
+# Secrets live in an .env file next to this one on the server and are never
+# committed. See .env.production.example.
+
+name: pos-fiplex
+
+services:
+  app:
+    # Set by CI to the GHCR tag; falls back to a locally built image.
+    image: ${APP_IMAGE:-pos-fiplex:local}
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      # Pinned here so a stale .env can never point the app at the wrong
+      # service — these must match the service names on the internal network.
+      APP_PORT: "8080"
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      R2_ENDPOINT: http://minio:9000
+      R2_USE_SSL: "false"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      # Localhost only: nginx on the host forwards to this.
+      - "127.0.0.1:${APP_BIND:-8093}:8080"
+    networks:
+      - internal
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+
+  postgres:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-pos_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
+      POSTGRES_DB: ${DB_NAME:-pos_fiplex}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-pos_user} -d ${DB_NAME:-pos_fiplex}"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redisdata:/data
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
+  minio:
+    image: minio/minio:latest
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: ${R2_ACCESS_KEY:?set R2_ACCESS_KEY in .env}
+      MINIO_ROOT_PASSWORD: ${R2_SECRET_KEY:?set R2_SECRET_KEY in .env}
+    command: server /data --console-address ":9001"
+    volumes:
+      - miniodata:/data
+    ports:
+      # Localhost only. nginx serves objects publicly under /storage/;
+      # the console (9001) is reachable via an SSH tunnel when needed.
+      - "127.0.0.1:${MINIO_BIND:-9000}:9000"
+      - "127.0.0.1:${MINIO_CONSOLE_BIND:-9001}:9001"
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
+  # One-shot: creates the bucket and makes objects readable without a signature,
+  # because GetFileShareLink serves them through R2_PUBLIC_DOMAIN rather than
+  # presigning. Exits immediately once done; re-runs are harmless.
+  minio-init:
+    image: minio/mc:latest
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      R2_ACCESS_KEY: ${R2_ACCESS_KEY}
+      R2_SECRET_KEY: ${R2_SECRET_KEY}
+      R2_BUCKET: ${R2_BUCKET:-pos-fiplex}
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 \"$${R2_ACCESS_KEY}\" \"$${R2_SECRET_KEY}\" &&
+      mc mb --ignore-existing \"local/$${R2_BUCKET}\" &&
+      mc anonymous set download \"local/$${R2_BUCKET}\" &&
+      echo 'minio-init: bucket ready'
+      "
+    restart: "no"
+    networks:
+      - internal
+
+networks:
+  internal:
+    driver: bridge
+
+volumes:
+  pgdata:
+  redisdata:
+  miniodata:
