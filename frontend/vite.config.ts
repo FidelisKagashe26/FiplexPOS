@@ -37,10 +37,12 @@ const config = defineConfig({
     },
   },
   server: {
+    host: '127.0.0.1',
+    port: 5200,
     proxy: {
-      '/api': 'http://localhost:8080',
-      '/swagger': 'http://localhost:8080',
-      '/healthz': 'http://localhost:8080',
+      '/api': 'http://127.0.0.1:8700',
+      '/swagger': 'http://127.0.0.1:8700',
+      '/healthz': 'http://127.0.0.1:8700',
     },
   },
 })

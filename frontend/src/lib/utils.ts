@@ -73,10 +73,11 @@ export async function getCroppedImg(imageSrc: string, pixelCrop: Area): Promise<
   })
 }
 
-export const formatRupiah = (number: number) => {
-  return new Intl.NumberFormat('id-ID', {
+export const formatCurrency = (number: number) => {
+  return new Intl.NumberFormat('sw-TZ', {
     style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0
+    currency: 'TZS',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   }).format(number)
 }

@@ -388,19 +388,19 @@ export function ProductFormDialog({ open, onOpenChange, productToEdit, categorie
                                                         <Label htmlFor={field.name} className="text-right mt-3">{t('products.form.price')}</Label>
                                                         <div className="col-span-3 space-y-1">
                                                             <div className="relative">
-                                                                <span className="absolute left-3 top-2.5 text-sm text-muted-foreground">Rp</span>
+                                                                <span className="absolute left-3 top-2.5 text-sm text-muted-foreground">TSh</span>
                                                                 <Input
                                                                     id={field.name}
                                                                     name={field.name}
                                                                     type="text"
                                                                     inputMode="numeric"
-                                                                    value={field.state.value ? field.state.value.toLocaleString('id-ID') : ''}
+                                                                    value={field.state.value ? field.state.value.toLocaleString('sw-TZ') : ''}
                                                                     onBlur={field.handleBlur}
                                                                     onChange={e => {
                                                                         const val = e.target.value.replace(/\D/g, '')
                                                                         field.handleChange(Number(val))
                                                                     }}
-                                                                    className="pl-9"
+                                                                    className="pl-12"
                                                                     placeholder="0"
                                                                 />
                                                             </div>
@@ -420,19 +420,19 @@ export function ProductFormDialog({ open, onOpenChange, productToEdit, categorie
                                                         <Label htmlFor={field.name} className="text-right mt-3">{t('products.form.cost_price')}</Label>
                                                         <div className="col-span-3 space-y-1">
                                                             <div className="relative">
-                                                                <span className="absolute left-3 top-2.5 text-sm text-muted-foreground">Rp</span>
+                                                                <span className="absolute left-3 top-2.5 text-sm text-muted-foreground">TSh</span>
                                                                 <Input
                                                                     id={field.name}
                                                                     name={field.name}
                                                                     type="text"
                                                                     inputMode="numeric"
-                                                                    value={field.state.value ? field.state.value.toLocaleString('id-ID') : ''}
+                                                                    value={field.state.value ? field.state.value.toLocaleString('sw-TZ') : ''}
                                                                     onBlur={field.handleBlur}
                                                                     onChange={e => {
                                                                         const val = e.target.value.replace(/\D/g, '')
                                                                         field.handleChange(Number(val))
                                                                     }}
-                                                                    className="pl-9"
+                                                                    className="pl-12"
                                                                     placeholder="0"
                                                                 />
                                                             </div>
@@ -456,7 +456,7 @@ export function ProductFormDialog({ open, onOpenChange, productToEdit, categorie
                                                                 name={field.name}
                                                                 type="text"
                                                                 inputMode="numeric"
-                                                                value={field.state.value ? field.state.value.toLocaleString('id-ID') : ''}
+                                                                value={field.state.value ? field.state.value.toLocaleString('sw-TZ') : ''}
                                                                 onBlur={field.handleBlur}
                                                                 onChange={e => {
                                                                     const val = e.target.value.replace(/\D/g, '')
@@ -508,13 +508,13 @@ export function ProductFormDialog({ open, onOpenChange, productToEdit, categorie
                                                                 />
                                                             </div>
                                                             <div className="space-y-1 relative">
-                                                                <span className="absolute left-3 top-2.5 text-sm text-muted-foreground">Rp</span>
+                                                                <span className="absolute left-3 top-2.5 text-sm text-muted-foreground">TSh</span>
                                                                 <Input
                                                                     type="text"
                                                                     inputMode="numeric"
                                                                     placeholder={t('products.form.additional_price')}
-                                                                    className="pl-8"
-                                                                    value={variant.additional_price ? variant.additional_price.toLocaleString('id-ID') : ''}
+                                                                    className="pl-12"
+                                                                    value={variant.additional_price ? variant.additional_price.toLocaleString('sw-TZ') : ''}
                                                                     onChange={e => {
                                                                         const val = e.target.value.replace(/\D/g, '')
                                                                         handleVariantChange(index, "additional_price", Number(val))

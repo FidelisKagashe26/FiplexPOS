@@ -13,7 +13,7 @@ const statConfig = [
     { key: 'revenue', icon: DollarSign, colorClass: 'bg-primary/10 text-primary' },
     { key: 'orders', icon: CreditCard, colorClass: 'bg-amber/10 text-amber' },
     { key: 'cashiers', icon: Users, colorClass: 'bg-emerald-500/10 text-emerald-500' },
-    { key: 'products', icon: Activity, colorClass: 'bg-violet-500/10 text-violet-500' },
+    { key: 'products', icon: Activity, colorClass: 'bg-slate-500/10 text-slate-500 dark:text-slate-300' },
 ]
 
 export function DashboardStats({ t, summary, isLoading, formatCurrency }: DashboardStatsProps) {

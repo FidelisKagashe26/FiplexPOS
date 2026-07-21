@@ -21,7 +21,7 @@ import {
 } from 'recharts'
 import { useTranslation } from 'react-i18next'
 
-const COLORS = ['#4F46E5', '#F59E0B', '#7C3AED', '#10B981', '#EC4899', '#06B6D4']
+const COLORS = ['var(--chart-1)', 'var(--chart-4)', 'var(--chart-3)', 'var(--chart-2)', 'var(--chart-5)', 'var(--chart-3)']
 
 interface SalesData {
     date?: string
@@ -54,27 +54,27 @@ export default function DashboardCharts({
         return (
             <ResponsiveContainer width="100%" height={350}>
                 <BarChart data={salesData}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
                     <XAxis
                         dataKey="date"
-                        stroke="#888888"
+                        stroke="var(--muted-foreground)"
                         fontSize={12}
                         tickLine={false}
                         axisLine={false}
                         tickFormatter={(value) => formatDate(value)}
                     />
                     <YAxis
-                        stroke="#888888"
+                        stroke="var(--muted-foreground)"
                         fontSize={12}
                         tickLine={false}
                         axisLine={false}
-                        tickFormatter={(value) => `Rp${(value / 1000).toLocaleString()}k`}
+                        tickFormatter={(value) => formatCurrency(Number(value || 0))}
                     />
                     <RechartsTooltip
                         formatter={(value: any) => formatCurrency(Number(value || 0))}
                         labelFormatter={(label) => formatDate(label)}
                     />
-                    <Bar dataKey="total_sales" fill="#4F46E5" radius={[8, 8, 0, 0]} name={t('reports.sales.revenue')} />
+                    <Bar dataKey="total_sales" fill="var(--chart-1)" radius={[8, 8, 0, 0]} name={t('reports.sales.revenue')} />
                 </BarChart>
             </ResponsiveContainer>
         )
@@ -90,7 +90,7 @@ export default function DashboardCharts({
                     cy="50%"
                     innerRadius={60}
                     outerRadius={100}
-                    fill="#8884d8"
+                    fill="var(--chart-1)"
                     paddingAngle={5}
                     dataKey="order_count"
                     nameKey="payment_method_name"

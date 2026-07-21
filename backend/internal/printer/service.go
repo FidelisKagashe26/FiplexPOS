@@ -233,5 +233,5 @@ func writeTotalLine(p escpos.Printer, label, value string) {
 }
 
 func formatCurrency(amount int64) string {
-	return fmt.Sprintf("Rp %d", amount)
+	return fmt.Sprintf("TSh %d", amount)
 }

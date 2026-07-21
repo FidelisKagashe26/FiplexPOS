@@ -509,19 +509,19 @@ func seedPromotions(ctx context.Context, pool *pgxpool.Pool, log logger.ILogger)
 		RuleValue     string
 	}{
 		{
-			Name: "Diskon Grand Opening", Description: "Diskon 10% untuk semua pesanan di atas Rp50.000",
+			Name: "Diskon Grand Opening", Description: "Diskon 10% untuk semua pesanan di atas TSh 50.000",
 			Scope: "ORDER", DiscountType: "percentage", DiscountValue: 10, MaxDiscount: 15000,
 			StartDate: threeMonthsAgo, EndDate: oneMonthLater,
 			RuleType: "MINIMUM_ORDER_AMOUNT", RuleValue: "50000",
 		},
 		{
-			Name: "Promo Paket Hemat", Description: "Potongan Rp5.000 untuk pesanan minimal Rp30.000",
+			Name: "Promo Paket Hemat", Description: "Potongan TSh 5.000 untuk pesanan minimal TSh 30.000",
 			Scope: "ORDER", DiscountType: "fixed_amount", DiscountValue: 5000, MaxDiscount: 5000,
 			StartDate: threeMonthsAgo, EndDate: oneMonthLater,
 			RuleType: "MINIMUM_ORDER_AMOUNT", RuleValue: "30000",
 		},
 		{
-			Name: "Happy Hour 15%", Description: "Diskon 15% untuk semua pesanan, maks Rp20.000",
+			Name: "Happy Hour 15%", Description: "Diskon 15% untuk semua pesanan, maks TSh 20.000",
 			Scope: "ORDER", DiscountType: "percentage", DiscountValue: 15, MaxDiscount: 20000,
 			StartDate: threeMonthsAgo, EndDate: oneMonthLater,
 			RuleType: "MINIMUM_ORDER_AMOUNT", RuleValue: "25000",

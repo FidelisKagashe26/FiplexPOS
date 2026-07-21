@@ -2,18 +2,11 @@ import { createRootRouteWithContext, Outlet } from '@tanstack/react-router'
 import { QueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { ThemeProvider } from 'next-themes'
-import { lazy, Suspense } from 'react'
 
 import { AuthProvider } from '@/context/AuthContext'
 import { Toaster } from "@/components/ui/sonner.tsx";
 import { ThemeManager } from "@/components/ThemeManager.tsx";
 import { ShiftProvider } from "@/context/ShiftContext";
-
-const DevToolsPanel = import.meta.env.DEV
-    ? lazy(() =>
-        import('@/components/DevToolsPanel')
-    )
-    : null
 
 
 export const Route = createRootRouteWithContext<{
@@ -36,11 +29,6 @@ function RootComponent() {
                         <Outlet />
                     </ShiftProvider>
                 </AuthProvider>
-                {import.meta.env.DEV && DevToolsPanel && (
-                    <Suspense fallback={null}>
-                        <DevToolsPanel />
-                    </Suspense>
-                )}
             </ThemeProvider>
             <Toaster />
         </>

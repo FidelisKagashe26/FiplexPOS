@@ -1,10 +1,17 @@
 import { createFileRoute, useRouter, useParams } from '@tanstack/react-router'
 import { redirect } from '@tanstack/react-router'
+import { useEffect, useState } from 'react'
+import { useTheme } from 'next-themes'
 import { meQueryOptions } from "@/lib/api/query/auth.ts";
 import { useAuth } from "@/context/AuthContext";
 import { useTranslation } from 'react-i18next'
-import { SettingsPanel } from "@/components/SettingsPanel.tsx";
 import { LoginForm } from "@/components/auth/LoginForm"
+
+type LoginTheme = 'light' | 'dark'
+
+export function getLoginThemeForHour(hour: number): LoginTheme {
+    return hour >= 6 && hour < 18 ? 'light' : 'dark'
+}
 
 export const Route = createFileRoute('/$locale/login')({
     ssr: false,
@@ -32,23 +39,38 @@ function LoginPage() {
     const { t } = useTranslation()
     const auth = useAuth()
     const router = useRouter()
+    const { setTheme } = useTheme()
+    const [loginTheme, setLoginTheme] = useState<LoginTheme>(() => getLoginThemeForHour(new Date().getHours()))
+
+    useEffect(() => {
+        const updateTheme = () => setLoginTheme(getLoginThemeForHour(new Date().getHours()))
+        const intervalId = window.setInterval(updateTheme, 60_000)
+        window.addEventListener('focus', updateTheme)
+
+        return () => {
+            window.clearInterval(intervalId)
+            window.removeEventListener('focus', updateTheme)
+        }
+    }, [])
 
     return (
-        <div className="min-h-screen flex items-center justify-center p-6 relative bg-linear-to-br from-primary/5 via-background to-amber/5">
-            {/* Decorative elements */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-primary/5 blur-3xl" />
-                <div className="absolute -bottom-24 -right-24 w-96 h-96 rounded-full bg-amber/5 blur-3xl" />
-                <div className="absolute top-1/4 right-1/4 w-64 h-64 rounded-full bg-primary/3 blur-2xl" />
-            </div>
-
-            <div className="absolute top-4 right-4 z-10">
-                <SettingsPanel />
-            </div>
-            <LoginForm 
+        <main
+            className="relative flex min-h-screen items-center justify-center overflow-hidden bg-cover bg-center px-5 py-10"
+            style={{ backgroundImage: "url('/login-background.png')", colorScheme: loginTheme }}
+            data-login-theme={loginTheme}
+        >
+            <div
+                className={loginTheme === 'dark' ? 'absolute inset-0 bg-slate-950/68' : 'absolute inset-0 bg-white/18'}
+                aria-hidden="true"
+            />
+            <LoginForm
                 t={t}
                 auth={auth}
+                mode={loginTheme}
                 onSubmitSuccess={async () => {
+                    if (!window.localStorage.getItem('theme')) {
+                        setTheme(loginTheme)
+                    }
                     await router.invalidate()
                     await router.navigate({
                         to: '/$locale',
@@ -57,7 +79,6 @@ function LoginPage() {
                     })
                 }}
             />
-        </div>
+        </main>
     )
 }
-

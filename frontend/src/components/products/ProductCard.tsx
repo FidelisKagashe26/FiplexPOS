@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge"
-import { formatRupiah } from "@/lib/utils"
+import { formatCurrency } from "@/lib/utils"
 import { Package, RotateCcw } from "lucide-react"
 import { ProductActions } from "./ProductActions"
 import { Button } from "@/components/ui/button"
@@ -18,7 +18,7 @@ export function ProductCard({ product, onEdit, onRestore, hasActions = true }: P
     const { t } = useTranslation();
     return (
         <div className={cn(
-            "group relative rounded-lg bg-card border border-border/40 text-card-foreground transition-all duration-300 hover:border-border/80 hover:shadow-sm overflow-hidden",
+            "glass-product-card group relative rounded-2xl bg-card border border-border/40 text-card-foreground transition-all duration-300 hover:border-border/80 hover:shadow-sm overflow-hidden",
             onRestore && "opacity-75 border-dashed bg-muted/30"
         )}>
 
@@ -96,7 +96,7 @@ export function ProductCard({ product, onEdit, onRestore, hasActions = true }: P
 
                     <div className="shrink-0">
                         <p className="text-sm font-medium text-foreground/90">
-                            {formatRupiah(product.price || 0)}
+                            {formatCurrency(product.price || 0)}
                         </p>
                     </div>
 

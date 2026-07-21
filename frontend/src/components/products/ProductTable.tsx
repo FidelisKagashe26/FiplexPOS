@@ -11,7 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ProductActions } from './ProductActions'
-import { formatRupiah } from '@/lib/utils'
+import { formatCurrency } from '@/lib/utils'
 
 interface ProductTableProps {
     products: any[]
@@ -70,7 +70,7 @@ export function ProductTable({
                                     </div>
                                 </TableCell>
                                 <TableCell className={isTrash ? "text-muted-foreground" : ""}>
-                                    {formatRupiah(product.price || 0)}
+                                    {formatCurrency(product.price || 0)}
                                 </TableCell>
                                 <TableCell>
                                     {isTrash ? (

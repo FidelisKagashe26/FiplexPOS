@@ -12,7 +12,12 @@ func SetupFrontend(app *App) {
 	// "./frontend/dist" is where the Docker image places the build;
 	// "../frontend/dist" is used when running locally from the backend/ directory.
 	distPath := ""
-	for _, candidate := range []string{"./frontend/dist", "../frontend/dist"} {
+	for _, candidate := range []string{
+		"./frontend/dist",
+		"../frontend/dist",
+		"../../frontend/dist",
+		"../../../frontend/dist",
+	} {
 		if _, err := os.Stat(candidate); err == nil {
 			distPath = candidate
 			break

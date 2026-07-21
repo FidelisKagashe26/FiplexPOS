@@ -1,4 +1,4 @@
-import { formatDate, formatRupiah } from "@/lib/utils"
+import { formatDate, formatCurrency } from "@/lib/utils"
 import { Pencil, Trash2, MoreHorizontal, RotateCcw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -76,10 +76,10 @@ export function PromotionsTable({
                                         <span className="font-bold">
                                             {promo.discount_type === POSKasirInternalPromotionsRepositoryDiscountType.DiscountTypePercentage
                                                 ? `${promo.discount_value}%`
-                                                : formatRupiah(promo.discount_value)}
+                                                : formatCurrency(promo.discount_value)}
                                         </span>
                                         {promo.max_discount_amount && promo.max_discount_amount > 0 && (
-                                            <span className="text-sm text-muted-foreground">{t('promotions.table.max')} {formatRupiah(promo.max_discount_amount)}</span>
+                                            <span className="text-sm text-muted-foreground">{t('promotions.table.max')} {formatCurrency(promo.max_discount_amount)}</span>
                                         )}
                                     </div>
                                 </TableCell>

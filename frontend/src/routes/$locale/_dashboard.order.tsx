@@ -177,9 +177,9 @@ function OrderPage() {
     }
 
     return (
-        <div className="flex h-[calc(100vh-4rem)] gap-2 relative">
+        <div className="flex h-[calc(100vh-8.5rem)] gap-2 relative">
             {/* Left: Product Grid */}
-            <div className="flex-1 flex flex-col gap-4 overflow-hidden bg-background min-h-0">
+            <div data-pos-catalog className="flex-1 flex flex-col gap-4 overflow-hidden bg-background min-h-0">
                 <ProductSearch 
                     searchTerm={searchTerm}
                     onSearchChange={setSearchTerm}
@@ -233,7 +233,7 @@ function OrderPage() {
             </div>
 
             {/* Right: Cart Sidebar (Desktop) */}
-            <div className="hidden md:flex w-[350px] flex-col rounded-xl border bg-card overflow-hidden min-h-0">
+            <div data-pos-cart className="hidden md:flex w-[350px] flex-col rounded-xl border bg-card overflow-hidden min-h-0">
                 <CartContent 
                     cart={cart} 
                     t={t} 

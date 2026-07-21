@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, Legend } from 'recharts'
 
-const COLORS = ['#4F46E5', '#F59E0B', '#7C3AED', '#10B981', '#EC4899', '#06B6D4'];
+const COLORS = ['var(--chart-1)', 'var(--chart-4)', 'var(--chart-3)', 'var(--chart-2)', 'var(--chart-5)', 'var(--chart-3)'];
 
 interface PerformanceReportProps {
     paymentsData: any[]
@@ -38,7 +38,7 @@ export function PerformanceReport({
                                         labelLine={false}
                                         label={({ name, percent }: any) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
                                         outerRadius={100}
-                                        fill="#4F46E5"
+                                        fill="var(--chart-1)"
                                         dataKey="order_count"
                                         nameKey="payment_method_name"
                                     >

@@ -3,9 +3,6 @@ import { Zap, Menu } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
-import { SettingsPanel } from "@/components/SettingsPanel.tsx"
-import { ShiftControl } from '@/components/dashboard/ShiftControl'
-import { DashboardUserMenu } from '@/components/dashboard/DashboardUserMenu'
 
 interface DashboardSidebarProps {
     t: any
@@ -14,8 +11,6 @@ interface DashboardSidebarProps {
     isSidebarCollapsed: boolean
     setIsSidebarCollapsed: (collapsed: boolean) => void
     filteredMenu: any[]
-    user: any
-    handleLogout: () => void
 }
 
 export function DashboardSidebar({
@@ -24,13 +19,11 @@ export function DashboardSidebar({
     branding,
     isSidebarCollapsed,
     setIsSidebarCollapsed,
-    filteredMenu,
-    user,
-    handleLogout
+    filteredMenu
 }: DashboardSidebarProps) {
     return (
         <div className="hidden md:block">
-            <div className="flex h-full max-h-screen flex-col gap-2 bg-card border-r border-border/50">
+            <div data-app-sidebar className="flex h-full max-h-screen flex-col gap-2 border-r border-sidebar-border bg-sidebar/85 shadow-xl shadow-slate-950/5 backdrop-blur-2xl">
                 {/* Logo */}
                 <div className={cn("flex h-16 items-center px-5", isSidebarCollapsed ? "justify-center" : "justify-between")}>
                     <Link
@@ -71,8 +64,8 @@ export function DashboardSidebar({
                                             activeOptions={{ exact: item.to === '/$locale' }}
                                             className={cn(
                                                 "flex items-center gap-3 rounded-xl px-3 py-2.5 text-muted-foreground transition-all duration-200",
-                                                "hover:bg-primary/5 hover:text-primary",
-                                                "[&.active]:bg-primary [&.active]:text-primary-foreground [&.active]:shadow-md [&.active]:shadow-primary/20",
+                                                "hover:bg-primary/10 hover:text-primary",
+                                                "[&.active]:bg-primary [&.active]:text-primary-foreground [&.active]:shadow-lg [&.active]:shadow-primary/25",
                                                 isSidebarCollapsed && "justify-center px-2"
                                             )}
                                         >
@@ -89,27 +82,6 @@ export function DashboardSidebar({
                             ))}
                         </nav>
                     </TooltipProvider>
-                </div>
-
-                {/* Bottom section */}
-                <div className={cn("mt-auto p-4 space-y-3", isSidebarCollapsed && "p-2")}>
-                    {!isSidebarCollapsed && (
-                        <>
-                            <div className="hidden md:block">
-                                <SettingsPanel />
-                            </div>
-                            <div className="hidden md:block">
-                                <ShiftControl />
-                            </div>
-                        </>
-                    )}
-
-                    <DashboardUserMenu
-                        t={t}
-                        user={user}
-                        isSidebarCollapsed={isSidebarCollapsed}
-                        handleLogout={handleLogout}
-                    />
                 </div>
             </div>
         </div>

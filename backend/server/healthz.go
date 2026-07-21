@@ -14,6 +14,13 @@ func HealthHandler(app *App) fiber.Handler {
 			})
 		}
 
+		if app.R2 == nil {
+			return c.Status(fiber.StatusServiceUnavailable).JSON(fiber.Map{
+				"status": "fail",
+				"error":  "Cloudflare R2 client unavailable",
+			})
+		}
+
 		r2Exists, err := app.R2.BucketExists(c.RequestCtx())
 		if err != nil || !r2Exists {
 			if err != nil {

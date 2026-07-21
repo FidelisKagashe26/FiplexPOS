@@ -29,30 +29,30 @@ export function ProfitReport({
                     ) : (
                         <ResponsiveContainer width="100%" height={400}>
                             <BarChart data={profitSummaryData}>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
                                 <XAxis
                                     dataKey="date"
-                                    stroke="#888888"
+                                    stroke="var(--muted-foreground)"
                                     fontSize={12}
                                     tickLine={false}
                                     axisLine={false}
                                     tickFormatter={(value) => formatDate(value)}
                                 />
                                 <YAxis
-                                    stroke="#888888"
+                                    stroke="var(--muted-foreground)"
                                     fontSize={12}
                                     tickLine={false}
                                     axisLine={false}
-                                    tickFormatter={(value) => `Rp${(value / 1000).toLocaleString()}k`}
+                                    tickFormatter={(value) => formatCurrency(Number(value || 0))}
                                 />
                                 <Tooltip
                                     formatter={(value: any) => formatCurrency(Number(value || 0))}
                                     labelFormatter={(label) => formatDate(label)}
                                 />
                                 <Legend />
-                                <Bar dataKey="total_revenue" fill="#4F46E5" radius={[8, 8, 0, 0]} name={t('reports.profit.revenue')} />
-                                <Bar dataKey="total_cogs" fill="#EC4899" radius={[8, 8, 0, 0]} name={t('reports.profit.cogs')} />
-                                <Bar dataKey="gross_profit" fill="#10B981" radius={[8, 8, 0, 0]} name={t('reports.profit.gross_profit')} />
+                                <Bar dataKey="total_revenue" fill="var(--chart-1)" radius={[8, 8, 0, 0]} name={t('reports.profit.revenue')} />
+                                <Bar dataKey="total_cogs" fill="var(--chart-5)" radius={[8, 8, 0, 0]} name={t('reports.profit.cogs')} />
+                                <Bar dataKey="gross_profit" fill="var(--chart-2)" radius={[8, 8, 0, 0]} name={t('reports.profit.gross_profit')} />
                             </BarChart>
                         </ResponsiveContainer>
                     )}

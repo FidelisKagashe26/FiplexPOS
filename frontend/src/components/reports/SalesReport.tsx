@@ -33,29 +33,29 @@ export function SalesReport({
                 ) : (
                     <ResponsiveContainer width="100%" height={400}>
                         <BarChart data={data}>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
                             <XAxis
                                 dataKey="date"
-                                stroke="#888888"
+                                stroke="var(--muted-foreground)"
                                 fontSize={12}
                                 tickLine={false}
                                 axisLine={false}
                                 tickFormatter={(value) => formatDate(value)}
                             />
                             <YAxis
-                                stroke="#888888"
+                                stroke="var(--muted-foreground)"
                                 fontSize={12}
                                 tickLine={false}
                                 axisLine={false}
-                                tickFormatter={(value) => `Rp${(value / 1000).toLocaleString()}k`}
+                                tickFormatter={(value) => formatCurrency(Number(value || 0))}
                             />
                             <Tooltip
                                 formatter={(value: any) => formatCurrency(Number(value || 0))}
                                 labelFormatter={(label) => formatDate(label)}
                             />
                             <Legend />
-                            <Bar dataKey="total_sales" fill="#4F46E5" radius={[8, 8, 0, 0]} name={t('reports.sales.revenue')} />
-                            <Bar dataKey="order_count" fill="#F59E0B" radius={[8, 8, 0, 0]} name={t('reports.sales.orders')} />
+                            <Bar dataKey="total_sales" fill="var(--chart-1)" radius={[8, 8, 0, 0]} name={t('reports.sales.revenue')} />
+                            <Bar dataKey="order_count" fill="var(--chart-4)" radius={[8, 8, 0, 0]} name={t('reports.sales.orders')} />
                         </BarChart>
                     </ResponsiveContainer>
                 )}

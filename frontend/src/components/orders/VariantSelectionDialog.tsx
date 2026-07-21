@@ -7,7 +7,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog"
-import { formatRupiah } from '@/lib/utils'
+import { formatCurrency } from '@/lib/utils'
 import { Product } from '@/lib/api/query/products'
 import { InternalProductsProductOptionResponse } from '@/lib/api/generated'
 
@@ -49,7 +49,7 @@ export function VariantSelectionDialog({
                         </div>
                         <div className="flex flex-col">
                             <span className="font-medium text-sm">{t('order.variant_dialog.original')}</span>
-                            <span className="text-sm text-muted-foreground">{formatRupiah(product.price || 0)}</span>
+                            <span className="text-sm text-muted-foreground">{formatCurrency(product.price || 0)}</span>
                         </div>
                     </div>
 
@@ -70,7 +70,7 @@ export function VariantSelectionDialog({
                             </div>
                             <div className="flex flex-col">
                                 <span className="font-medium text-sm">{option.name}</span>
-                                <span className="text-sm text-muted-foreground">+{formatRupiah(option.additional_price || 0)}</span>
+                                <span className="text-sm text-muted-foreground">+{formatCurrency(option.additional_price || 0)}</span>
                             </div>
                         </div>
                     ))}

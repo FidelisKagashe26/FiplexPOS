@@ -15,7 +15,7 @@ import {
     SelectItem,
     SelectTrigger,
 } from "@/components/ui/select"
-import { formatRupiah } from '@/lib/utils'
+import { formatCurrency } from '@/lib/utils'
 import { POSKasirInternalOrdersRepositoryOrderStatus } from '@/lib/api/generated'
 
 interface TransactionTableProps {
@@ -111,7 +111,7 @@ export function TransactionTable({
                             </TableCell>
                             <TableCell className="font-bold font-mono text-sm">
                                 <div className="flex flex-col items-start gap-1">
-                                    <span>{formatRupiah(order.net_total || 0)}</span>
+                                    <span>{formatCurrency(order.net_total || 0)}</span>
                                     {order.is_paid ? (
                                         <Badge variant="default" className="text-xs h-5">
                                             {t('transactions.status_badge.paid')}

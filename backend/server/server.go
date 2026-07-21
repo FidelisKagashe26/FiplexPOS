@@ -107,13 +107,15 @@ type AppContainer struct {
 }
 
 func InitApp() *App {
-	// .env lives at the repository root; "../.env" covers running from backend/.
-	if err := godotenv.Overload(); err != nil {
-		if err := godotenv.Overload("../.env"); err != nil {
-			if os.Getenv("APP_ENV") != "production" {
-				log.Println("Warning: .env file not found or could not be overloaded")
-			}
+	envLoaded := false
+	for _, envFile := range []string{".env", "../.env", "../../.env", "backend/.env"} {
+		if err := godotenv.Overload(envFile); err == nil {
+			envLoaded = true
+			break
 		}
+	}
+	if !envLoaded && os.Getenv("APP_ENV") != "production" {
+		log.Println("Warning: .env file not found or could not be overloaded")
 	}
 
 	cfg := config.Load()

@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Loader2, Banknote, TicketPercent } from 'lucide-react'
-import { formatRupiah } from '@/lib/utils'
+import { formatCurrency } from '@/lib/utils'
 import {
     useOrderDetailQuery,
     useConfirmManualPaymentMutation,
@@ -222,9 +222,9 @@ function PaymentDialogForm({ open, onOpenChange, orderId, onPaymentSuccess, mode
                 if (onPaymentSuccess) onPaymentSuccess()
                 onOpenChange(false)
                 const change = inputCash - totalAmount
-                toast.success(`${t('order.success.payment_success')} ${formatRupiah(change)}`, {
+                toast.success(`${t('order.success.payment_success')} ${formatCurrency(change)}`, {
                     duration: 5000,
-                    description: `${t('order.success.received')}: ${formatRupiah(inputCash)} | ${t('order.total')}: ${formatRupiah(totalAmount)}`,
+                    description: `${t('order.success.received')}: ${formatCurrency(inputCash)} | ${t('order.total')}: ${formatCurrency(totalAmount)}`,
                     closeButton: true, position: 'top-center',
                     style: { background: '#10B981', color: 'white', border: 'none' },
                     action: { label: t('common.print'), onClick: () => handlePrint() }
@@ -255,11 +255,11 @@ function PaymentDialogForm({ open, onOpenChange, orderId, onPaymentSuccess, mode
             <div className="bg-muted/30 p-4 rounded-lg space-y-3 mb-2">
                 <div className="flex justify-between items-center text-sm">
                     <span className="text-muted-foreground">{t('order.subtotal')}</span>
-                    <span>{formatRupiah(order?.gross_total || 0)}</span>
+                    <span>{formatCurrency(order?.gross_total || 0)}</span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
                     <span className="text-muted-foreground flex items-center gap-1"><TicketPercent className="w-3 h-3" /> {t('order.payment_dialog.discount')}</span>
-                    <span className="text-primary">-{formatRupiah(order?.discount_amount || 0)}</span>
+                    <span className="text-primary">-{formatCurrency(order?.discount_amount || 0)}</span>
                 </div>
                 <div className="flex items-center gap-2 pt-2 border-t border-dashed">
                     <Select
@@ -274,7 +274,7 @@ function PaymentDialogForm({ open, onOpenChange, orderId, onPaymentSuccess, mode
                             <SelectItem value="none">{t('order.payment_dialog.no_promo')}</SelectItem>
                             {activePromotions.map(p => (
                                 <SelectItem key={p.id} value={p.id || ''}>
-                                    {p.name} - {p.discount_type === 'percentage' ? `${p.discount_value}%` : formatRupiah(Number(p.discount_value))}
+                                    {p.name} - {p.discount_type === 'percentage' ? `${p.discount_value}%` : formatCurrency(Number(p.discount_value))}
                                 </SelectItem>
                             ))}
                         </SelectContent>
@@ -282,7 +282,7 @@ function PaymentDialogForm({ open, onOpenChange, orderId, onPaymentSuccess, mode
                 </div>
                 <div className="flex justify-between items-center font-bold text-sm border-t pt-2">
                     <span>{t('order.total')}</span>
-                    <span className="text-primary">{formatRupiah(order?.net_total || 0)}</span>
+                    <span className="text-primary">{formatCurrency(order?.net_total || 0)}</span>
                 </div>
             </div>
 
@@ -305,7 +305,7 @@ function PaymentDialogForm({ open, onOpenChange, orderId, onPaymentSuccess, mode
                                                 <Input
                                                     // no-autofocus removed!
                                                     type="text" inputMode="numeric"
-                                                    value={cashReceived ? Number(cashReceived).toLocaleString('id-ID') : ''}
+                                                    value={cashReceived ? Number(cashReceived).toLocaleString('sw-TZ') : ''}
                                                     onChange={(e) => setCashReceived(e.target.value.replace(/\D/g, ''))}
                                                     className="text-center text-xl font-bold h-12"
                                                     placeholder={t('order.payment_dialog.enter_amount')}
@@ -314,7 +314,7 @@ function PaymentDialogForm({ open, onOpenChange, orderId, onPaymentSuccess, mode
                                             <div className="flex justify-between items-center text-sm py-3 rounded-lg">
                                                 <span className="text-muted-foreground">{t('order.payment_dialog.change')}</span>
                                                 <span className="font-bold text-sm text-primary">
-                                                    {formatRupiah(Math.max(0, Number(cashReceived) - (order?.net_total || 0)))}
+                                                    {formatCurrency(Math.max(0, Number(cashReceived) - (order?.net_total || 0)))}
                                                 </span>
                                             </div>
                                         </div>
