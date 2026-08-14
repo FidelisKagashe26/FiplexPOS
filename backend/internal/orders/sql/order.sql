@@ -1,6 +1,6 @@
 -- name: CreateOrder :one
-INSERT INTO orders (user_id, type, customer_id )
-VALUES ($1, $2, $3 )
+INSERT INTO orders (user_id, type, customer_id, shop_id )
+VALUES ($1, $2, $3, sqlc.narg('shop_id') )
 RETURNING *;
 
 -- name: DeleteOrderItemsByOrderID :exec
@@ -119,6 +119,8 @@ WHERE
     (sqlc.narg(statuses)::text[] IS NULL OR status = ANY(sqlc.narg(statuses)::text[]::order_status[]))
   AND
     (sqlc.narg(user_id)::uuid IS NULL OR user_id = sqlc.narg(user_id))
+  AND
+    (sqlc.narg(shop_id)::uuid IS NULL OR shop_id = sqlc.narg(shop_id))
 ORDER BY
     created_at DESC
 LIMIT $1 OFFSET $2;
@@ -129,7 +131,9 @@ SELECT count(*) FROM orders
 WHERE
     (sqlc.narg(statuses)::text[] IS NULL OR status = ANY(sqlc.narg(statuses)::text[]::order_status[]))
   AND
-    (sqlc.narg(user_id)::uuid IS NULL OR user_id = sqlc.narg(user_id));
+    (sqlc.narg(user_id)::uuid IS NULL OR user_id = sqlc.narg(user_id))
+  AND
+    (sqlc.narg(shop_id)::uuid IS NULL OR shop_id = sqlc.narg(shop_id));
 
 
 -- name: CancelOrder :one

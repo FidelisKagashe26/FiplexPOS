@@ -2,6 +2,7 @@ package activitylog
 
 import (
 	"POS-fiplex/internal/activitylog/repository"
+	"POS-fiplex/internal/common"
 
 	"POS-fiplex/pkg/logger"
 	"context"
@@ -41,6 +42,9 @@ func (s *ActivityService) Log(ctx context.Context, userID uuid.UUID, action repo
 		}
 	}
 
+	// Capture the shop before the goroutine — the request context may be recycled by then.
+	shopParam := common.ShopParamFromContext(ctx)
+
 	go func() {
 		_, err := s.repo.CreateActivityLog(ctx, repository.CreateActivityLogParams{
 			UserID:     pgtype.UUID{Bytes: userID, Valid: true},
@@ -48,6 +52,7 @@ func (s *ActivityService) Log(ctx context.Context, userID uuid.UUID, action repo
 			EntityType: repository.LogEntityType(entityType),
 			EntityID:   entityID,
 			Details:    detailsJSON,
+			ShopID:     shopParam,
 		})
 		if err != nil {
 			s.log.Errorf("Log | Failed to create activity log: %v", err)
@@ -65,12 +70,15 @@ func (s *ActivityService) GetActivityLogs(ctx context.Context, req GetActivityLo
 		limit = *req.Limit
 	}
 
+	shopParam := common.ShopParamFromContext(ctx)
+
 	arg := repository.GetActivityLogsParams{
 		Limit:  int32(limit),
 		Offset: int32((page - 1) * limit),
+		ShopID: shopParam,
 	}
 
-	countArg := repository.CountActivityLogsParams{}
+	countArg := repository.CountActivityLogsParams{ShopID: shopParam}
 
 	if req.ActionType != nil {
 		actionType := repository.LogActionType(*req.ActionType)

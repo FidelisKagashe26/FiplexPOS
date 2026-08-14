@@ -1,12 +1,19 @@
+-- All report aggregates are scoped by shop with the lenient pattern
+-- (sqlc.narg('shop_id')::uuid IS NULL OR <table>.shop_id = narg): a NULL shop arg
+-- reports across all data (single-tenant behaviour), a real shop isolates it.
+
 -- name: GetDashboardSummary :one
 SELECT
     COALESCE(SUM(net_total), 0) AS total_sales,
     COUNT(*) AS total_orders,
     COUNT(DISTINCT user_id) AS unique_cashiers,
-    (SELECT COUNT(*) FROM products WHERE deleted_at IS NULL) AS total_products
+    (SELECT COUNT(*) FROM products
+        WHERE deleted_at IS NULL
+          AND (sqlc.narg('shop_id')::uuid IS NULL OR shop_id = sqlc.narg('shop_id'))) AS total_products
 FROM orders
 WHERE orders.created_at::date BETWEEN $1 AND $2
-  AND orders.status IN ('paid', 'served');
+  AND orders.status IN ('paid', 'served')
+  AND (sqlc.narg('shop_id')::uuid IS NULL OR orders.shop_id = sqlc.narg('shop_id'));
 
 -- name: GetSalesSummary :many
 SELECT
@@ -16,6 +23,7 @@ SELECT
 FROM orders
 WHERE created_at::date BETWEEN $1 AND $2
   AND status IN ('paid', 'served')
+  AND (sqlc.narg('shop_id')::uuid IS NULL OR shop_id = sqlc.narg('shop_id'))
 GROUP BY date
 ORDER BY date;
 
@@ -30,6 +38,7 @@ FROM order_items oi
          JOIN orders o ON oi.order_id = o.id
 WHERE o.created_at::date BETWEEN $1 AND $2
   AND o.status IN ('paid', 'served')
+  AND (sqlc.narg('shop_id')::uuid IS NULL OR o.shop_id = sqlc.narg('shop_id'))
 GROUP BY p.id, p.name
 ORDER BY total_quantity DESC
 LIMIT $3 OFFSET $4;
@@ -40,7 +49,8 @@ FROM order_items oi
          JOIN products p ON oi.product_id = p.id
          JOIN orders o ON oi.order_id = o.id
 WHERE o.created_at::date BETWEEN $1 AND $2
-  AND o.status IN ('paid', 'served');
+  AND o.status IN ('paid', 'served')
+  AND (sqlc.narg('shop_id')::uuid IS NULL OR o.shop_id = sqlc.narg('shop_id'));
 
 -- name: GetCategorySales :many
 SELECT
@@ -54,6 +64,7 @@ FROM order_items oi
          JOIN orders o ON oi.order_id = o.id
 WHERE o.created_at::date BETWEEN $1 AND $2
   AND o.status IN ('paid', 'served')
+  AND (sqlc.narg('shop_id')::uuid IS NULL OR o.shop_id = sqlc.narg('shop_id'))
 GROUP BY c.id, c.name
 ORDER BY total_revenue DESC;
 
@@ -67,6 +78,7 @@ FROM orders o
          JOIN payment_methods pm ON o.payment_method_id = pm.id
 WHERE o.created_at::date BETWEEN $1 AND $2
   AND o.status IN ('paid', 'served')
+  AND (sqlc.narg('shop_id')::uuid IS NULL OR o.shop_id = sqlc.narg('shop_id'))
 GROUP BY pm.id, pm.name
 ORDER BY total_sales DESC;
 
@@ -80,6 +92,7 @@ FROM orders o
          JOIN users u ON o.user_id = u.id
 WHERE o.created_at::date BETWEEN $1 AND $2
   AND o.status IN ('paid', 'served')
+  AND (sqlc.narg('shop_id')::uuid IS NULL OR o.shop_id = sqlc.narg('shop_id'))
 GROUP BY u.id, u.username
 ORDER BY total_sales DESC;
 
@@ -92,6 +105,7 @@ FROM orders o
          JOIN cancellation_reasons cr ON o.cancellation_reason_id = cr.id
 WHERE o.status = 'cancelled'
   AND o.created_at::date BETWEEN $1 AND $2
+  AND (sqlc.narg('shop_id')::uuid IS NULL OR o.shop_id = sqlc.narg('shop_id'))
 GROUP BY cr.id, cr.reason
 ORDER BY cancelled_orders DESC;
 
@@ -101,6 +115,7 @@ SELECT
 FROM products
 WHERE stock <= $1
   AND deleted_at IS NULL
+  AND (sqlc.narg('shop_id')::uuid IS NULL OR shop_id = sqlc.narg('shop_id'))
 ORDER BY stock ASC;
 
 -- name: GetPromotionPerformance :many
@@ -114,6 +129,7 @@ FROM orders o
 JOIN promotions p ON o.applied_promotion_id = p.id
 WHERE o.created_at::date BETWEEN $1 AND $2
   AND o.status IN ('paid', 'served')
+  AND (sqlc.narg('shop_id')::uuid IS NULL OR o.shop_id = sqlc.narg('shop_id'))
 GROUP BY p.id, p.name
 ORDER BY usage_count DESC;
 
@@ -131,4 +147,5 @@ SELECT
 FROM shifts s
 JOIN users u ON s.user_id = u.id
 WHERE s.start_time::date BETWEEN $1 AND $2
+  AND (sqlc.narg('shop_id')::uuid IS NULL OR s.shop_id = sqlc.narg('shop_id'))
 ORDER BY s.start_time DESC;

@@ -9,13 +9,14 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createCashTransaction = `-- name: CreateCashTransaction :one
 INSERT INTO cash_transactions (
-    shift_id, user_id, amount, type, category, description
+    shift_id, user_id, amount, type, category, description, shop_id
 ) VALUES (
-    $1, $2, $3, $4, $5, $6
+    $1, $2, $3, $4, $5, $6, $7
 ) RETURNING id, shift_id, user_id, amount, type, category, description, created_at, shop_id
 `
 
@@ -26,6 +27,7 @@ type CreateCashTransactionParams struct {
 	Type        CashTransactionType `json:"type"`
 	Category    string              `json:"category"`
 	Description *string             `json:"description"`
+	ShopID      pgtype.UUID         `json:"shop_id"`
 }
 
 func (q *Queries) CreateCashTransaction(ctx context.Context, arg CreateCashTransactionParams) (CashTransaction, error) {
@@ -36,6 +38,7 @@ func (q *Queries) CreateCashTransaction(ctx context.Context, arg CreateCashTrans
 		arg.Type,
 		arg.Category,
 		arg.Description,
+		arg.ShopID,
 	)
 	var i CashTransaction
 	err := row.Scan(
@@ -54,19 +57,20 @@ func (q *Queries) CreateCashTransaction(ctx context.Context, arg CreateCashTrans
 
 const createShift = `-- name: CreateShift :one
 INSERT INTO shifts (
-    user_id, start_cash, status
+    user_id, start_cash, status, shop_id
 ) VALUES (
-    $1, $2, 'open'
+    $1, $2, 'open', $3
 ) RETURNING id, user_id, start_time, end_time, start_cash, expected_cash_end, actual_cash_end, status, created_at, updated_at, shop_id
 `
 
 type CreateShiftParams struct {
-	UserID    uuid.UUID `json:"user_id"`
-	StartCash int64     `json:"start_cash"`
+	UserID    uuid.UUID   `json:"user_id"`
+	StartCash int64       `json:"start_cash"`
+	ShopID    pgtype.UUID `json:"shop_id"`
 }
 
 func (q *Queries) CreateShift(ctx context.Context, arg CreateShiftParams) (Shift, error) {
-	row := q.db.QueryRow(ctx, createShift, arg.UserID, arg.StartCash)
+	row := q.db.QueryRow(ctx, createShift, arg.UserID, arg.StartCash, arg.ShopID)
 	var i Shift
 	err := row.Scan(
 		&i.ID,

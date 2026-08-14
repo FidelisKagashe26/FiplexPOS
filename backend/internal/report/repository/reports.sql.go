@@ -19,15 +19,17 @@ FROM order_items oi
          JOIN orders o ON oi.order_id = o.id
 WHERE o.created_at::date BETWEEN $1 AND $2
   AND o.status IN ('paid', 'served')
+  AND ($3::uuid IS NULL OR o.shop_id = $3)
 `
 
 type CountProductSalesPerformanceParams struct {
 	CreatedAt   pgtype.Timestamptz `json:"created_at"`
 	CreatedAt_2 pgtype.Timestamptz `json:"created_at_2"`
+	ShopID      pgtype.UUID        `json:"shop_id"`
 }
 
 func (q *Queries) CountProductSalesPerformance(ctx context.Context, arg CountProductSalesPerformanceParams) (int64, error) {
-	row := q.db.QueryRow(ctx, countProductSalesPerformance, arg.CreatedAt, arg.CreatedAt_2)
+	row := q.db.QueryRow(ctx, countProductSalesPerformance, arg.CreatedAt, arg.CreatedAt_2, arg.ShopID)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
@@ -42,6 +44,7 @@ FROM orders o
          JOIN cancellation_reasons cr ON o.cancellation_reason_id = cr.id
 WHERE o.status = 'cancelled'
   AND o.created_at::date BETWEEN $1 AND $2
+  AND ($3::uuid IS NULL OR o.shop_id = $3)
 GROUP BY cr.id, cr.reason
 ORDER BY cancelled_orders DESC
 `
@@ -49,6 +52,7 @@ ORDER BY cancelled_orders DESC
 type GetCancellationReasonsParams struct {
 	CreatedAt   pgtype.Timestamptz `json:"created_at"`
 	CreatedAt_2 pgtype.Timestamptz `json:"created_at_2"`
+	ShopID      pgtype.UUID        `json:"shop_id"`
 }
 
 type GetCancellationReasonsRow struct {
@@ -58,7 +62,7 @@ type GetCancellationReasonsRow struct {
 }
 
 func (q *Queries) GetCancellationReasons(ctx context.Context, arg GetCancellationReasonsParams) ([]GetCancellationReasonsRow, error) {
-	rows, err := q.db.Query(ctx, getCancellationReasons, arg.CreatedAt, arg.CreatedAt_2)
+	rows, err := q.db.Query(ctx, getCancellationReasons, arg.CreatedAt, arg.CreatedAt_2, arg.ShopID)
 	if err != nil {
 		return nil, err
 	}
@@ -87,6 +91,7 @@ FROM orders o
          JOIN users u ON o.user_id = u.id
 WHERE o.created_at::date BETWEEN $1 AND $2
   AND o.status IN ('paid', 'served')
+  AND ($3::uuid IS NULL OR o.shop_id = $3)
 GROUP BY u.id, u.username
 ORDER BY total_sales DESC
 `
@@ -94,6 +99,7 @@ ORDER BY total_sales DESC
 type GetCashierPerformanceParams struct {
 	CreatedAt   pgtype.Timestamptz `json:"created_at"`
 	CreatedAt_2 pgtype.Timestamptz `json:"created_at_2"`
+	ShopID      pgtype.UUID        `json:"shop_id"`
 }
 
 type GetCashierPerformanceRow struct {
@@ -104,7 +110,7 @@ type GetCashierPerformanceRow struct {
 }
 
 func (q *Queries) GetCashierPerformance(ctx context.Context, arg GetCashierPerformanceParams) ([]GetCashierPerformanceRow, error) {
-	rows, err := q.db.Query(ctx, getCashierPerformance, arg.CreatedAt, arg.CreatedAt_2)
+	rows, err := q.db.Query(ctx, getCashierPerformance, arg.CreatedAt, arg.CreatedAt_2, arg.ShopID)
 	if err != nil {
 		return nil, err
 	}
@@ -140,6 +146,7 @@ FROM order_items oi
          JOIN orders o ON oi.order_id = o.id
 WHERE o.created_at::date BETWEEN $1 AND $2
   AND o.status IN ('paid', 'served')
+  AND ($3::uuid IS NULL OR o.shop_id = $3)
 GROUP BY c.id, c.name
 ORDER BY total_revenue DESC
 `
@@ -147,6 +154,7 @@ ORDER BY total_revenue DESC
 type GetCategorySalesParams struct {
 	CreatedAt   pgtype.Timestamptz `json:"created_at"`
 	CreatedAt_2 pgtype.Timestamptz `json:"created_at_2"`
+	ShopID      pgtype.UUID        `json:"shop_id"`
 }
 
 type GetCategorySalesRow struct {
@@ -157,7 +165,7 @@ type GetCategorySalesRow struct {
 }
 
 func (q *Queries) GetCategorySales(ctx context.Context, arg GetCategorySalesParams) ([]GetCategorySalesRow, error) {
-	rows, err := q.db.Query(ctx, getCategorySales, arg.CreatedAt, arg.CreatedAt_2)
+	rows, err := q.db.Query(ctx, getCategorySales, arg.CreatedAt, arg.CreatedAt_2, arg.ShopID)
 	if err != nil {
 		return nil, err
 	}
@@ -182,19 +190,24 @@ func (q *Queries) GetCategorySales(ctx context.Context, arg GetCategorySalesPara
 }
 
 const getDashboardSummary = `-- name: GetDashboardSummary :one
+
 SELECT
     COALESCE(SUM(net_total), 0) AS total_sales,
     COUNT(*) AS total_orders,
     COUNT(DISTINCT user_id) AS unique_cashiers,
-    (SELECT COUNT(*) FROM products WHERE deleted_at IS NULL) AS total_products
+    (SELECT COUNT(*) FROM products
+        WHERE deleted_at IS NULL
+          AND ($3::uuid IS NULL OR shop_id = $3)) AS total_products
 FROM orders
 WHERE orders.created_at::date BETWEEN $1 AND $2
   AND orders.status IN ('paid', 'served')
+  AND ($3::uuid IS NULL OR orders.shop_id = $3)
 `
 
 type GetDashboardSummaryParams struct {
 	CreatedAt   pgtype.Timestamptz `json:"created_at"`
 	CreatedAt_2 pgtype.Timestamptz `json:"created_at_2"`
+	ShopID      pgtype.UUID        `json:"shop_id"`
 }
 
 type GetDashboardSummaryRow struct {
@@ -204,8 +217,11 @@ type GetDashboardSummaryRow struct {
 	TotalProducts  int64       `json:"total_products"`
 }
 
+// All report aggregates are scoped by shop with the lenient pattern
+// (sqlc.narg('shop_id')::uuid IS NULL OR <table>.shop_id = narg): a NULL shop arg
+// reports across all data (single-tenant behaviour), a real shop isolates it.
 func (q *Queries) GetDashboardSummary(ctx context.Context, arg GetDashboardSummaryParams) (GetDashboardSummaryRow, error) {
-	row := q.db.QueryRow(ctx, getDashboardSummary, arg.CreatedAt, arg.CreatedAt_2)
+	row := q.db.QueryRow(ctx, getDashboardSummary, arg.CreatedAt, arg.CreatedAt_2, arg.ShopID)
 	var i GetDashboardSummaryRow
 	err := row.Scan(
 		&i.TotalSales,
@@ -222,8 +238,14 @@ SELECT
 FROM products
 WHERE stock <= $1
   AND deleted_at IS NULL
+  AND ($2::uuid IS NULL OR shop_id = $2)
 ORDER BY stock ASC
 `
+
+type GetLowStockProductsParams struct {
+	Stock  int32       `json:"stock"`
+	ShopID pgtype.UUID `json:"shop_id"`
+}
 
 type GetLowStockProductsRow struct {
 	ID    uuid.UUID `json:"id"`
@@ -231,8 +253,8 @@ type GetLowStockProductsRow struct {
 	Stock int32     `json:"stock"`
 }
 
-func (q *Queries) GetLowStockProducts(ctx context.Context, stock int32) ([]GetLowStockProductsRow, error) {
-	rows, err := q.db.Query(ctx, getLowStockProducts, stock)
+func (q *Queries) GetLowStockProducts(ctx context.Context, arg GetLowStockProductsParams) ([]GetLowStockProductsRow, error) {
+	rows, err := q.db.Query(ctx, getLowStockProducts, arg.Stock, arg.ShopID)
 	if err != nil {
 		return nil, err
 	}
@@ -261,6 +283,7 @@ FROM orders o
          JOIN payment_methods pm ON o.payment_method_id = pm.id
 WHERE o.created_at::date BETWEEN $1 AND $2
   AND o.status IN ('paid', 'served')
+  AND ($3::uuid IS NULL OR o.shop_id = $3)
 GROUP BY pm.id, pm.name
 ORDER BY total_sales DESC
 `
@@ -268,6 +291,7 @@ ORDER BY total_sales DESC
 type GetPaymentMethodSalesParams struct {
 	CreatedAt   pgtype.Timestamptz `json:"created_at"`
 	CreatedAt_2 pgtype.Timestamptz `json:"created_at_2"`
+	ShopID      pgtype.UUID        `json:"shop_id"`
 }
 
 type GetPaymentMethodSalesRow struct {
@@ -278,7 +302,7 @@ type GetPaymentMethodSalesRow struct {
 }
 
 func (q *Queries) GetPaymentMethodSales(ctx context.Context, arg GetPaymentMethodSalesParams) ([]GetPaymentMethodSalesRow, error) {
-	rows, err := q.db.Query(ctx, getPaymentMethodSales, arg.CreatedAt, arg.CreatedAt_2)
+	rows, err := q.db.Query(ctx, getPaymentMethodSales, arg.CreatedAt, arg.CreatedAt_2, arg.ShopID)
 	if err != nil {
 		return nil, err
 	}
@@ -313,6 +337,7 @@ FROM order_items oi
          JOIN orders o ON oi.order_id = o.id
 WHERE o.created_at::date BETWEEN $1 AND $2
   AND o.status IN ('paid', 'served')
+  AND ($5::uuid IS NULL OR o.shop_id = $5)
 GROUP BY p.id, p.name
 ORDER BY total_quantity DESC
 LIMIT $3 OFFSET $4
@@ -323,6 +348,7 @@ type GetProductSalesPerformanceParams struct {
 	CreatedAt_2 pgtype.Timestamptz `json:"created_at_2"`
 	Limit       int32              `json:"limit"`
 	Offset      int32              `json:"offset"`
+	ShopID      pgtype.UUID        `json:"shop_id"`
 }
 
 type GetProductSalesPerformanceRow struct {
@@ -338,6 +364,7 @@ func (q *Queries) GetProductSalesPerformance(ctx context.Context, arg GetProduct
 		arg.CreatedAt_2,
 		arg.Limit,
 		arg.Offset,
+		arg.ShopID,
 	)
 	if err != nil {
 		return nil, err
@@ -373,6 +400,7 @@ FROM orders o
 JOIN promotions p ON o.applied_promotion_id = p.id
 WHERE o.created_at::date BETWEEN $1 AND $2
   AND o.status IN ('paid', 'served')
+  AND ($3::uuid IS NULL OR o.shop_id = $3)
 GROUP BY p.id, p.name
 ORDER BY usage_count DESC
 `
@@ -380,6 +408,7 @@ ORDER BY usage_count DESC
 type GetPromotionPerformanceParams struct {
 	CreatedAt   pgtype.Timestamptz `json:"created_at"`
 	CreatedAt_2 pgtype.Timestamptz `json:"created_at_2"`
+	ShopID      pgtype.UUID        `json:"shop_id"`
 }
 
 type GetPromotionPerformanceRow struct {
@@ -391,7 +420,7 @@ type GetPromotionPerformanceRow struct {
 }
 
 func (q *Queries) GetPromotionPerformance(ctx context.Context, arg GetPromotionPerformanceParams) ([]GetPromotionPerformanceRow, error) {
-	rows, err := q.db.Query(ctx, getPromotionPerformance, arg.CreatedAt, arg.CreatedAt_2)
+	rows, err := q.db.Query(ctx, getPromotionPerformance, arg.CreatedAt, arg.CreatedAt_2, arg.ShopID)
 	if err != nil {
 		return nil, err
 	}
@@ -424,6 +453,7 @@ SELECT
 FROM orders
 WHERE created_at::date BETWEEN $1 AND $2
   AND status IN ('paid', 'served')
+  AND ($3::uuid IS NULL OR shop_id = $3)
 GROUP BY date
 ORDER BY date
 `
@@ -431,6 +461,7 @@ ORDER BY date
 type GetSalesSummaryParams struct {
 	CreatedAt   pgtype.Timestamptz `json:"created_at"`
 	CreatedAt_2 pgtype.Timestamptz `json:"created_at_2"`
+	ShopID      pgtype.UUID        `json:"shop_id"`
 }
 
 type GetSalesSummaryRow struct {
@@ -440,7 +471,7 @@ type GetSalesSummaryRow struct {
 }
 
 func (q *Queries) GetSalesSummary(ctx context.Context, arg GetSalesSummaryParams) ([]GetSalesSummaryRow, error) {
-	rows, err := q.db.Query(ctx, getSalesSummary, arg.CreatedAt, arg.CreatedAt_2)
+	rows, err := q.db.Query(ctx, getSalesSummary, arg.CreatedAt, arg.CreatedAt_2, arg.ShopID)
 	if err != nil {
 		return nil, err
 	}
@@ -473,12 +504,14 @@ SELECT
 FROM shifts s
 JOIN users u ON s.user_id = u.id
 WHERE s.start_time::date BETWEEN $1 AND $2
+  AND ($3::uuid IS NULL OR s.shop_id = $3)
 ORDER BY s.start_time DESC
 `
 
 type GetShiftSummaryParams struct {
 	StartTime   pgtype.Timestamptz `json:"start_time"`
 	StartTime_2 pgtype.Timestamptz `json:"start_time_2"`
+	ShopID      pgtype.UUID        `json:"shop_id"`
 }
 
 type GetShiftSummaryRow struct {
@@ -494,7 +527,7 @@ type GetShiftSummaryRow struct {
 }
 
 func (q *Queries) GetShiftSummary(ctx context.Context, arg GetShiftSummaryParams) ([]GetShiftSummaryRow, error) {
-	rows, err := q.db.Query(ctx, getShiftSummary, arg.StartTime, arg.StartTime_2)
+	rows, err := q.db.Query(ctx, getShiftSummary, arg.StartTime, arg.StartTime_2, arg.ShopID)
 	if err != nil {
 		return nil, err
 	}

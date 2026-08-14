@@ -62,6 +62,7 @@ func (s *PromotionService) CreatePromotion(ctx context.Context, req CreatePromot
 			StartDate:         pgtype.Timestamptz{Time: req.StartDate, Valid: true},
 			EndDate:           pgtype.Timestamptz{Time: req.EndDate, Valid: true},
 			IsActive:          req.IsActive,
+			ShopID:            common.ShopParamFromContext(ctx),
 		})
 		if err != nil {
 			return err
@@ -247,23 +248,26 @@ func (s *PromotionService) ListPromotions(ctx context.Context, req ListPromotion
 	var promos []repository.Promotion
 	var err error
 
+	shopParam := common.ShopParamFromContext(ctx)
 	if req.Trash {
-		totalCount, err = s.repo.CountTrashPromotions(ctx)
+		totalCount, err = s.repo.CountTrashPromotions(ctx, shopParam)
 		if err != nil {
 			return nil, err
 		}
 		promos, err = s.repo.ListTrashPromotions(ctx, repository.ListTrashPromotionsParams{
 			Limit:  int32(limit),
 			Offset: int32(offset),
+			ShopID: shopParam,
 		})
 	} else {
-		totalCount, err = s.repo.CountPromotions(ctx)
+		totalCount, err = s.repo.CountPromotions(ctx, shopParam)
 		if err != nil {
 			return nil, err
 		}
 		promos, err = s.repo.ListPromotions(ctx, repository.ListPromotionsParams{
 			Limit:  int32(limit),
 			Offset: int32(offset),
+			ShopID: shopParam,
 		})
 	}
 

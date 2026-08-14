@@ -8,11 +8,12 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Querier interface {
-	CountPromotions(ctx context.Context) (int64, error)
-	CountTrashPromotions(ctx context.Context) (int64, error)
+	CountPromotions(ctx context.Context, shopID pgtype.UUID) (int64, error)
+	CountTrashPromotions(ctx context.Context, shopID pgtype.UUID) (int64, error)
 	CreatePromotion(ctx context.Context, arg CreatePromotionParams) (Promotion, error)
 	CreatePromotionRule(ctx context.Context, arg CreatePromotionRuleParams) (PromotionRule, error)
 	CreatePromotionTarget(ctx context.Context, arg CreatePromotionTargetParams) (PromotionTarget, error)

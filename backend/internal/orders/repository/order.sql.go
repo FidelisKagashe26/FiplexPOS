@@ -193,24 +193,27 @@ WHERE
     ($1::text[] IS NULL OR status = ANY($1::text[]::order_status[]))
   AND
     ($2::uuid IS NULL OR user_id = $2)
+  AND
+    ($3::uuid IS NULL OR shop_id = $3)
 `
 
 type CountOrdersParams struct {
 	Statuses []string    `json:"statuses"`
 	UserID   pgtype.UUID `json:"user_id"`
+	ShopID   pgtype.UUID `json:"shop_id"`
 }
 
 // Menghitung total pesanan dengan filter.
 func (q *Queries) CountOrders(ctx context.Context, arg CountOrdersParams) (int64, error) {
-	row := q.db.QueryRow(ctx, countOrders, arg.Statuses, arg.UserID)
+	row := q.db.QueryRow(ctx, countOrders, arg.Statuses, arg.UserID, arg.ShopID)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
 }
 
 const createOrder = `-- name: CreateOrder :one
-INSERT INTO orders (user_id, type, customer_id )
-VALUES ($1, $2, $3 )
+INSERT INTO orders (user_id, type, customer_id, shop_id )
+VALUES ($1, $2, $3, $4 )
 RETURNING id, user_id, type, status, created_at, updated_at, gross_total, discount_amount, net_total, applied_promotion_id, payment_method_id, payment_gateway_reference, cash_received, change_due, cancellation_reason_id, cancellation_notes, payment_url, payment_token, version, tax_amount, service_charge_amount, customer_id, shop_id
 `
 
@@ -218,10 +221,16 @@ type CreateOrderParams struct {
 	UserID     pgtype.UUID `json:"user_id"`
 	Type       OrderType   `json:"type"`
 	CustomerID pgtype.UUID `json:"customer_id"`
+	ShopID     pgtype.UUID `json:"shop_id"`
 }
 
 func (q *Queries) CreateOrder(ctx context.Context, arg CreateOrderParams) (Order, error) {
-	row := q.db.QueryRow(ctx, createOrder, arg.UserID, arg.Type, arg.CustomerID)
+	row := q.db.QueryRow(ctx, createOrder,
+		arg.UserID,
+		arg.Type,
+		arg.CustomerID,
+		arg.ShopID,
+	)
 	var i Order
 	err := row.Scan(
 		&i.ID,
@@ -939,6 +948,8 @@ WHERE
     ($3::text[] IS NULL OR status = ANY($3::text[]::order_status[]))
   AND
     ($4::uuid IS NULL OR user_id = $4)
+  AND
+    ($5::uuid IS NULL OR shop_id = $5)
 ORDER BY
     created_at DESC
 LIMIT $1 OFFSET $2
@@ -949,6 +960,7 @@ type ListOrdersParams struct {
 	Offset   int32       `json:"offset"`
 	Statuses []string    `json:"statuses"`
 	UserID   pgtype.UUID `json:"user_id"`
+	ShopID   pgtype.UUID `json:"shop_id"`
 }
 
 type ListOrdersRow struct {
@@ -968,6 +980,7 @@ func (q *Queries) ListOrders(ctx context.Context, arg ListOrdersParams) ([]ListO
 		arg.Offset,
 		arg.Statuses,
 		arg.UserID,
+		arg.ShopID,
 	)
 	if err != nil {
 		return nil, err

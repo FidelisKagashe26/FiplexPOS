@@ -1,8 +1,8 @@
 -- name: CreateShift :one
 INSERT INTO shifts (
-    user_id, start_cash, status
+    user_id, start_cash, status, shop_id
 ) VALUES (
-    $1, $2, 'open'
+    $1, $2, 'open', sqlc.narg('shop_id')
 ) RETURNING *;
 
 -- name: GetOpenShiftByUserID :one
@@ -27,9 +27,9 @@ RETURNING *;
 
 -- name: CreateCashTransaction :one
 INSERT INTO cash_transactions (
-    shift_id, user_id, amount, type, category, description
+    shift_id, user_id, amount, type, category, description, shop_id
 ) VALUES (
-    $1, $2, $3, $4, $5, $6
+    $1, $2, $3, $4, $5, $6, sqlc.narg('shop_id')
 ) RETURNING *;
 
 -- name: GetCashTransactionsByShiftID :many

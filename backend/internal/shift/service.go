@@ -57,6 +57,7 @@ func (s *service) StartShift(ctx context.Context, userID uuid.UUID, req StartShi
 	shift, err := s.repo.CreateShift(ctx, repository.CreateShiftParams{
 		UserID:    userID,
 		StartCash: req.StartCash,
+		ShopID:    common.ShopParamFromContext(ctx),
 	})
 	if err != nil {
 		s.log.Errorf("StartShift | Failed to create shift: %v, userID=%v", err, userID)
@@ -167,6 +168,7 @@ func (s *service) CreateCashTransaction(ctx context.Context, userID uuid.UUID, r
 		Type:        req.Type,
 		Category:    req.Category,
 		Description: &req.Description,
+		ShopID:      common.ShopParamFromContext(ctx),
 	})
 	if err != nil {
 		s.log.Errorf("CreateCashTransaction | Failed to create transaction: %v", err)

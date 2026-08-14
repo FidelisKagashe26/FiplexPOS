@@ -2,6 +2,7 @@ package report
 
 import (
 	"POS-fiplex/internal/activitylog"
+	"POS-fiplex/internal/common"
 	"POS-fiplex/internal/common/pagination"
 	"POS-fiplex/internal/common/store"
 	"POS-fiplex/internal/report/repository"
@@ -68,6 +69,7 @@ func (r *RptService) GetSalesReports(ctx context.Context, req *SalesReportServic
 			Time:  req.EndDate,
 			Valid: true,
 		},
+		ShopID: common.ShopParamFromContext(ctx),
 	}
 
 	reports, err := r.repo.GetSalesSummary(ctx, params)
@@ -118,6 +120,7 @@ func (r *RptService) GetDashboardSummary(ctx context.Context, req *SalesReportSe
 			Time:  req.EndDate,
 			Valid: true,
 		},
+		ShopID: common.ShopParamFromContext(ctx),
 	}
 
 	summary, err := r.repo.GetDashboardSummary(ctx, params)
@@ -173,6 +176,7 @@ func (r *RptService) GetProductPerformance(ctx context.Context, req *SalesReport
 		},
 		Limit:  int32(req.Limit),
 		Offset: int32((req.Page - 1) * req.Limit),
+		ShopID: common.ShopParamFromContext(ctx),
 	}
 
 	results, err := r.repo.GetProductSalesPerformance(ctx, params)
@@ -184,6 +188,7 @@ func (r *RptService) GetProductPerformance(ctx context.Context, req *SalesReport
 	countParams := repository.CountProductSalesPerformanceParams{
 		CreatedAt:   params.CreatedAt,
 		CreatedAt_2: params.CreatedAt_2,
+		ShopID:      params.ShopID,
 	}
 	totalData, err := r.repo.CountProductSalesPerformance(ctx, countParams)
 	if err != nil {
@@ -231,6 +236,7 @@ func (r *RptService) GetPaymentMethodPerformance(ctx context.Context, req *Sales
 			Time:  req.EndDate,
 			Valid: true,
 		},
+		ShopID: common.ShopParamFromContext(ctx),
 	}
 
 	results, err := r.repo.GetPaymentMethodSales(ctx, params)
@@ -270,6 +276,7 @@ func (r *RptService) GetCashierPerformance(ctx context.Context, req *SalesReport
 			Time:  req.EndDate,
 			Valid: true,
 		},
+		ShopID: common.ShopParamFromContext(ctx),
 	}
 
 	results, err := r.repo.GetCashierPerformance(ctx, params)
@@ -309,6 +316,7 @@ func (r *RptService) GetCancellationReports(ctx context.Context, req *SalesRepor
 			Time:  req.EndDate,
 			Valid: true,
 		},
+		ShopID: common.ShopParamFromContext(ctx),
 	}
 
 	results, err := r.repo.GetCancellationReasons(ctx, params)
@@ -339,6 +347,7 @@ func (r *RptService) GetProfitSummary(ctx context.Context, req *SalesReportServi
 			Time:  req.EndDate,
 			Valid: true,
 		},
+		ShopID: common.ShopParamFromContext(ctx),
 	}
 
 	results, err := r.repo.GetProfitSummary(ctx, params)
@@ -404,6 +413,7 @@ func (r *RptService) GetProductProfitReports(ctx context.Context, req *SalesRepo
 		},
 		Limit:  int32(req.Limit),
 		Offset: int32((req.Page - 1) * req.Limit),
+		ShopID: common.ShopParamFromContext(ctx),
 	}
 
 	results, err := r.repo.GetProductProfitReports(ctx, params)
@@ -415,6 +425,7 @@ func (r *RptService) GetProductProfitReports(ctx context.Context, req *SalesRepo
 	countParams := repository.CountProductProfitReportsParams{
 		CreatedAt:   params.CreatedAt,
 		CreatedAt_2: params.CreatedAt_2,
+		ShopID:      params.ShopID,
 	}
 	totalData, err := r.repo.CountProductProfitReports(ctx, countParams)
 	if err != nil {
@@ -447,7 +458,10 @@ func (r *RptService) GetProductProfitReports(ctx context.Context, req *SalesRepo
 }
 
 func (r *RptService) GetLowStockProducts(ctx context.Context, req *LowStockRequest) (*[]LowStockProductResponse, error) {
-	products, err := r.repo.GetLowStockProducts(ctx, req.Threshold)
+	products, err := r.repo.GetLowStockProducts(ctx, repository.GetLowStockProductsParams{
+		Stock:  req.Threshold,
+		ShopID: common.ShopParamFromContext(ctx),
+	})
 	if err != nil {
 		r.Log.Error("Failed to get low stock products", "error", err)
 		return nil, err
@@ -469,6 +483,7 @@ func (r *RptService) GetPromotionPerformanceReport(ctx context.Context, req *Sal
 	params := repository.GetPromotionPerformanceParams{
 		CreatedAt:   pgtype.Timestamptz{Time: req.StartDate, Valid: true},
 		CreatedAt_2: pgtype.Timestamptz{Time: req.EndDate, Valid: true},
+		ShopID:      common.ShopParamFromContext(ctx),
 	}
 
 	promotions, err := r.repo.GetPromotionPerformance(ctx, params)
@@ -505,6 +520,7 @@ func (r *RptService) GetShiftSummaryReport(ctx context.Context, req *SalesReport
 	params := repository.GetShiftSummaryParams{
 		StartTime:   pgtype.Timestamptz{Time: req.StartDate, Valid: true},
 		StartTime_2: pgtype.Timestamptz{Time: req.EndDate, Valid: true},
+		ShopID:      common.ShopParamFromContext(ctx),
 	}
 
 	shifts, err := r.repo.GetShiftSummary(ctx, params)

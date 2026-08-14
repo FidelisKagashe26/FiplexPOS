@@ -19,15 +19,17 @@ JOIN products p ON oi.product_id = p.id
 JOIN orders o ON oi.order_id = o.id
 WHERE o.created_at::date BETWEEN $1 AND $2
   AND o.status IN ('paid', 'served')
+  AND ($3::uuid IS NULL OR o.shop_id = $3)
 `
 
 type CountProductProfitReportsParams struct {
 	CreatedAt   pgtype.Timestamptz `json:"created_at"`
 	CreatedAt_2 pgtype.Timestamptz `json:"created_at_2"`
+	ShopID      pgtype.UUID        `json:"shop_id"`
 }
 
 func (q *Queries) CountProductProfitReports(ctx context.Context, arg CountProductProfitReportsParams) (int64, error) {
-	row := q.db.QueryRow(ctx, countProductProfitReports, arg.CreatedAt, arg.CreatedAt_2)
+	row := q.db.QueryRow(ctx, countProductProfitReports, arg.CreatedAt, arg.CreatedAt_2, arg.ShopID)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
@@ -46,6 +48,7 @@ JOIN products p ON oi.product_id = p.id
 JOIN orders o ON oi.order_id = o.id
 WHERE o.created_at::date BETWEEN $1 AND $2
   AND o.status IN ('paid', 'served')
+  AND ($5::uuid IS NULL OR o.shop_id = $5)
 GROUP BY p.id, p.name
 ORDER BY gross_profit DESC
 LIMIT $3 OFFSET $4
@@ -56,6 +59,7 @@ type GetProductProfitReportsParams struct {
 	CreatedAt_2 pgtype.Timestamptz `json:"created_at_2"`
 	Limit       int32              `json:"limit"`
 	Offset      int32              `json:"offset"`
+	ShopID      pgtype.UUID        `json:"shop_id"`
 }
 
 type GetProductProfitReportsRow struct {
@@ -73,6 +77,7 @@ func (q *Queries) GetProductProfitReports(ctx context.Context, arg GetProductPro
 		arg.CreatedAt_2,
 		arg.Limit,
 		arg.Offset,
+		arg.ShopID,
 	)
 	if err != nil {
 		return nil, err
@@ -116,6 +121,7 @@ SELECT
 FROM orders o
 WHERE created_at::date BETWEEN $1 AND $2
   AND status IN ('paid', 'served')
+  AND ($3::uuid IS NULL OR o.shop_id = $3)
 GROUP BY date
 ORDER BY date
 `
@@ -123,6 +129,7 @@ ORDER BY date
 type GetProfitSummaryParams struct {
 	CreatedAt   pgtype.Timestamptz `json:"created_at"`
 	CreatedAt_2 pgtype.Timestamptz `json:"created_at_2"`
+	ShopID      pgtype.UUID        `json:"shop_id"`
 }
 
 type GetProfitSummaryRow struct {
@@ -133,7 +140,7 @@ type GetProfitSummaryRow struct {
 }
 
 func (q *Queries) GetProfitSummary(ctx context.Context, arg GetProfitSummaryParams) ([]GetProfitSummaryRow, error) {
-	rows, err := q.db.Query(ctx, getProfitSummary, arg.CreatedAt, arg.CreatedAt_2)
+	rows, err := q.db.Query(ctx, getProfitSummary, arg.CreatedAt, arg.CreatedAt_2, arg.ShopID)
 	if err != nil {
 		return nil, err
 	}

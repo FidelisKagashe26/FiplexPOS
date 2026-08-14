@@ -21,6 +21,7 @@ WHERE
     AND ($3::timestamptz IS NULL OR al.created_at <= $3)
     AND ($4::log_action_type IS NULL OR al.action_type = $4::log_action_type)
     AND ($5::log_entity_type IS NULL OR al.entity_type = $5::log_entity_type)
+    AND ($6::uuid IS NULL OR al.shop_id = $6)
 `
 
 type CountActivityLogsParams struct {
@@ -29,6 +30,7 @@ type CountActivityLogsParams struct {
 	EndDate    pgtype.Timestamptz `json:"end_date"`
 	ActionType *LogActionType     `json:"action_type"`
 	EntityType *LogEntityType     `json:"entity_type"`
+	ShopID     pgtype.UUID        `json:"shop_id"`
 }
 
 func (q *Queries) CountActivityLogs(ctx context.Context, arg CountActivityLogsParams) (int64, error) {
@@ -38,6 +40,7 @@ func (q *Queries) CountActivityLogs(ctx context.Context, arg CountActivityLogsPa
 		arg.EndDate,
 		arg.ActionType,
 		arg.EntityType,
+		arg.ShopID,
 	)
 	var count int64
 	err := row.Scan(&count)
@@ -50,9 +53,10 @@ INSERT INTO activity_logs (
     action_type,
     entity_type,
     entity_id,
-    details
+    details,
+    shop_id
 ) VALUES (
-             $1, $2, $3, $4, $5
+             $1, $2, $3, $4, $5, $6
          ) RETURNING id
 `
 
@@ -62,6 +66,7 @@ type CreateActivityLogParams struct {
 	EntityType LogEntityType `json:"entity_type"`
 	EntityID   string        `json:"entity_id"`
 	Details    []byte        `json:"details"`
+	ShopID     pgtype.UUID   `json:"shop_id"`
 }
 
 func (q *Queries) CreateActivityLog(ctx context.Context, arg CreateActivityLogParams) (uuid.UUID, error) {
@@ -71,6 +76,7 @@ func (q *Queries) CreateActivityLog(ctx context.Context, arg CreateActivityLogPa
 		arg.EntityType,
 		arg.EntityID,
 		arg.Details,
+		arg.ShopID,
 	)
 	var id uuid.UUID
 	err := row.Scan(&id)
@@ -95,6 +101,7 @@ WHERE
     AND ($5::timestamptz IS NULL OR al.created_at <= $5)
     AND ($6::log_action_type IS NULL OR al.action_type = $6::log_action_type)
     AND ($7::log_entity_type IS NULL OR al.entity_type = $7::log_entity_type)
+    AND ($8::uuid IS NULL OR al.shop_id = $8)
 ORDER BY al.created_at DESC
 LIMIT $1 OFFSET $2
 `
@@ -107,6 +114,7 @@ type GetActivityLogsParams struct {
 	EndDate    pgtype.Timestamptz `json:"end_date"`
 	ActionType *LogActionType     `json:"action_type"`
 	EntityType *LogEntityType     `json:"entity_type"`
+	ShopID     pgtype.UUID        `json:"shop_id"`
 }
 
 type GetActivityLogsRow struct {
@@ -129,6 +137,7 @@ func (q *Queries) GetActivityLogs(ctx context.Context, arg GetActivityLogsParams
 		arg.EndDate,
 		arg.ActionType,
 		arg.EntityType,
+		arg.ShopID,
 	)
 	if err != nil {
 		return nil, err

@@ -14,8 +14,11 @@ type Querier interface {
 	GetCancellationReasons(ctx context.Context, arg GetCancellationReasonsParams) ([]GetCancellationReasonsRow, error)
 	GetCashierPerformance(ctx context.Context, arg GetCashierPerformanceParams) ([]GetCashierPerformanceRow, error)
 	GetCategorySales(ctx context.Context, arg GetCategorySalesParams) ([]GetCategorySalesRow, error)
+	// All report aggregates are scoped by shop with the lenient pattern
+	// (sqlc.narg('shop_id')::uuid IS NULL OR <table>.shop_id = narg): a NULL shop arg
+	// reports across all data (single-tenant behaviour), a real shop isolates it.
 	GetDashboardSummary(ctx context.Context, arg GetDashboardSummaryParams) (GetDashboardSummaryRow, error)
-	GetLowStockProducts(ctx context.Context, stock int32) ([]GetLowStockProductsRow, error)
+	GetLowStockProducts(ctx context.Context, arg GetLowStockProductsParams) ([]GetLowStockProductsRow, error)
 	GetPaymentMethodSales(ctx context.Context, arg GetPaymentMethodSalesParams) ([]GetPaymentMethodSalesRow, error)
 	GetProductProfitReports(ctx context.Context, arg GetProductProfitReportsParams) ([]GetProductProfitReportsRow, error)
 	GetProductSalesPerformance(ctx context.Context, arg GetProductSalesPerformanceParams) ([]GetProductSalesPerformanceRow, error)

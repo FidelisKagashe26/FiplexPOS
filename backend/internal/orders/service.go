@@ -1051,15 +1051,18 @@ func (s *OrderService) ListOrders(ctx context.Context, req ListOrdersRequest) (*
 		}
 	}
 
+	shopParam := common.ShopParamFromContext(ctx)
 	listParams := orders_repo.ListOrdersParams{
 		Limit:    int32(limit),
 		Offset:   int32(offset),
 		Statuses: statusStrings,
 		UserID:   nullUserID,
+		ShopID:   shopParam,
 	}
 	countParams := orders_repo.CountOrdersParams{
 		Statuses: statusStrings,
 		UserID:   nullUserID,
+		ShopID:   shopParam,
 	}
 	var wg sync.WaitGroup
 	var orders []orders_repo.ListOrdersRow
@@ -1192,6 +1195,7 @@ func (s *OrderService) CreateOrder(ctx context.Context, req CreateOrderRequest) 
 			UserID:     pgtype.UUID{Bytes: actorID, Valid: ok},
 			Type:       req.Type,
 			CustomerID: nullCustomerID,
+			ShopID:     common.ShopParamFromContext(ctx),
 		})
 		if err != nil {
 			return fmt.Errorf("failed to create order header: %w", err)

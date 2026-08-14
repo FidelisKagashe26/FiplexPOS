@@ -16,6 +16,7 @@ SELECT
 FROM orders o
 WHERE created_at::date BETWEEN $1 AND $2
   AND status IN ('paid', 'served')
+  AND (sqlc.narg('shop_id')::uuid IS NULL OR o.shop_id = sqlc.narg('shop_id'))
 GROUP BY date
 ORDER BY date;
 
@@ -32,6 +33,7 @@ JOIN products p ON oi.product_id = p.id
 JOIN orders o ON oi.order_id = o.id
 WHERE o.created_at::date BETWEEN $1 AND $2
   AND o.status IN ('paid', 'served')
+  AND (sqlc.narg('shop_id')::uuid IS NULL OR o.shop_id = sqlc.narg('shop_id'))
 GROUP BY p.id, p.name
 ORDER BY gross_profit DESC
 LIMIT $3 OFFSET $4;
@@ -42,4 +44,5 @@ FROM order_items oi
 JOIN products p ON oi.product_id = p.id
 JOIN orders o ON oi.order_id = o.id
 WHERE o.created_at::date BETWEEN $1 AND $2
-  AND o.status IN ('paid', 'served');
+  AND o.status IN ('paid', 'served')
+  AND (sqlc.narg('shop_id')::uuid IS NULL OR o.shop_id = sqlc.narg('shop_id'));

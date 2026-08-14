@@ -85,6 +85,7 @@ func TestPromotionService_CreatePromotion(t *testing.T) {
 				pgtype.Timestamptz{Time: req.StartDate, Valid: true},
 				pgtype.Timestamptz{Time: req.EndDate, Valid: true},
 				req.IsActive,
+				pgtype.UUID{},
 			).
 			WillReturnRows(pgxmock.NewRows([]string{"id", "name", "description", "scope", "discount_type", "discount_value", "max_discount_amount", "start_date", "end_date", "is_active", "created_at", "updated_at", "deleted_at", "shop_id"}).
 				AddRow(promoID, req.Name, &req.Description, req.Scope, req.DiscountType, utils.Int64ToNumeric(req.DiscountValue), utils.Int64PtrToNumeric(req.MaxDiscountAmount), pgtype.Timestamptz{Time: req.StartDate, Valid: true}, pgtype.Timestamptz{Time: req.EndDate, Valid: true}, req.IsActive, pgtype.Timestamptz{Time: now, Valid: true}, pgtype.Timestamptz{Time: now, Valid: true}, pgtype.Timestamptz{}, pgtype.UUID{}))
@@ -275,10 +276,11 @@ func TestPromotionService_ListPromotions(t *testing.T) {
 		limit := 10
 
 		mockDB.ExpectQuery("SELECT COUNT\\(\\*\\) FROM promotions WHERE deleted_at IS NULL").
+			WithArgs(pgtype.UUID{}).
 			WillReturnRows(pgxmock.NewRows([]string{"count"}).AddRow(int64(1)))
 
-		mockDB.ExpectQuery("SELECT .* FROM promotions WHERE deleted_at IS NULL ORDER BY created_at DESC LIMIT \\$1 OFFSET \\$2").
-			WithArgs(int32(limit), int32(0)).
+		mockDB.ExpectQuery("SELECT .* FROM promotions WHERE deleted_at IS NULL").
+			WithArgs(int32(limit), int32(0), pgtype.UUID{}).
 			WillReturnRows(pgxmock.NewRows([]string{"id", "name", "description", "scope", "discount_type", "discount_value", "max_discount_amount", "start_date", "end_date", "is_active", "created_at", "updated_at", "deleted_at", "shop_id"}).
 				AddRow(uuid.New(), "Promo 1", utils.StringPtr("Desc"), promo_repo.PromotionScopeORDER, promo_repo.DiscountTypePercentage, utils.Int64ToNumeric(10), utils.Int64ToNumeric(5000), pgtype.Timestamptz{Time: time.Now(), Valid: true}, pgtype.Timestamptz{Time: time.Now(), Valid: true}, true, pgtype.Timestamptz{Time: time.Now(), Valid: true}, pgtype.Timestamptz{Time: time.Now(), Valid: true}, pgtype.Timestamptz{}, pgtype.UUID{}))
 

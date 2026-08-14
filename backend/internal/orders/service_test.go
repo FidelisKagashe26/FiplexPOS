@@ -190,9 +190,9 @@ func TestOrderService_CreateOrder(t *testing.T) {
 			},
 		)
 
-		// 1. CreateOrder (INSERT INTO orders)
+		// 1. CreateOrder (INSERT INTO orders) — user_id, type, customer_id, shop_id
 		mockPgx.ExpectQuery("INSERT INTO orders").
-			WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+			WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 			WillReturnRows(pgxmock.NewRows(orderColumns).AddRow(makeOrderRow(0, 0)...))
 
 		// 2. GetProductsForUpdate (SELECT ... FOR UPDATE) — 9 columns: id, name, image_url, price, stock, created_at, updated_at, deleted_at, cost_price

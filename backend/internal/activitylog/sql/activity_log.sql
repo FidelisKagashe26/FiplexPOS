@@ -5,9 +5,10 @@ INSERT INTO activity_logs (
     action_type,
     entity_type,
     entity_id,
-    details
+    details,
+    shop_id
 ) VALUES (
-             $1, $2, $3, $4, $5
+             $1, $2, $3, $4, $5, sqlc.narg('shop_id')
          ) RETURNING id;
 
 -- name: GetActivityLogs :many
@@ -28,6 +29,7 @@ WHERE
     AND (sqlc.narg('end_date')::timestamptz IS NULL OR al.created_at <= sqlc.narg('end_date'))
     AND (sqlc.narg('action_type')::log_action_type IS NULL OR al.action_type = sqlc.narg('action_type')::log_action_type)
     AND (sqlc.narg('entity_type')::log_entity_type IS NULL OR al.entity_type = sqlc.narg('entity_type')::log_entity_type)
+    AND (sqlc.narg('shop_id')::uuid IS NULL OR al.shop_id = sqlc.narg('shop_id'))
 ORDER BY al.created_at DESC
 LIMIT $1 OFFSET $2;
 
@@ -39,4 +41,5 @@ WHERE
     AND (sqlc.narg('start_date')::timestamptz IS NULL OR al.created_at >= sqlc.narg('start_date'))
     AND (sqlc.narg('end_date')::timestamptz IS NULL OR al.created_at <= sqlc.narg('end_date'))
     AND (sqlc.narg('action_type')::log_action_type IS NULL OR al.action_type = sqlc.narg('action_type')::log_action_type)
-    AND (sqlc.narg('entity_type')::log_entity_type IS NULL OR al.entity_type = sqlc.narg('entity_type')::log_entity_type);
+    AND (sqlc.narg('entity_type')::log_entity_type IS NULL OR al.entity_type = sqlc.narg('entity_type')::log_entity_type)
+    AND (sqlc.narg('shop_id')::uuid IS NULL OR al.shop_id = sqlc.narg('shop_id'));

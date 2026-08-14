@@ -13,22 +13,26 @@ import (
 )
 
 const countPromotions = `-- name: CountPromotions :one
-SELECT COUNT(*) FROM promotions WHERE deleted_at IS NULL
+SELECT COUNT(*) FROM promotions
+WHERE deleted_at IS NULL
+  AND ($1::uuid IS NULL OR shop_id = $1)
 `
 
-func (q *Queries) CountPromotions(ctx context.Context) (int64, error) {
-	row := q.db.QueryRow(ctx, countPromotions)
+func (q *Queries) CountPromotions(ctx context.Context, shopID pgtype.UUID) (int64, error) {
+	row := q.db.QueryRow(ctx, countPromotions, shopID)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
 }
 
 const countTrashPromotions = `-- name: CountTrashPromotions :one
-SELECT COUNT(*) FROM promotions WHERE deleted_at IS NOT NULL
+SELECT COUNT(*) FROM promotions
+WHERE deleted_at IS NOT NULL
+  AND ($1::uuid IS NULL OR shop_id = $1)
 `
 
-func (q *Queries) CountTrashPromotions(ctx context.Context) (int64, error) {
-	row := q.db.QueryRow(ctx, countTrashPromotions)
+func (q *Queries) CountTrashPromotions(ctx context.Context, shopID pgtype.UUID) (int64, error) {
+	row := q.db.QueryRow(ctx, countTrashPromotions, shopID)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
@@ -44,9 +48,10 @@ INSERT INTO promotions (
     max_discount_amount,
     start_date,
     end_date,
-    is_active
+    is_active,
+    shop_id
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8, $9
+    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
 ) RETURNING id, name, description, scope, discount_type, discount_value, max_discount_amount, start_date, end_date, is_active, created_at, updated_at, deleted_at, shop_id
 `
 
@@ -60,6 +65,7 @@ type CreatePromotionParams struct {
 	StartDate         pgtype.Timestamptz `json:"start_date"`
 	EndDate           pgtype.Timestamptz `json:"end_date"`
 	IsActive          bool               `json:"is_active"`
+	ShopID            pgtype.UUID        `json:"shop_id"`
 }
 
 func (q *Queries) CreatePromotion(ctx context.Context, arg CreatePromotionParams) (Promotion, error) {
@@ -73,6 +79,7 @@ func (q *Queries) CreatePromotion(ctx context.Context, arg CreatePromotionParams
 		arg.StartDate,
 		arg.EndDate,
 		arg.IsActive,
+		arg.ShopID,
 	)
 	var i Promotion
 	err := row.Scan(
@@ -320,17 +327,19 @@ func (q *Queries) GetPromotionTargets(ctx context.Context, promotionID uuid.UUID
 const listPromotions = `-- name: ListPromotions :many
 SELECT id, name, description, scope, discount_type, discount_value, max_discount_amount, start_date, end_date, is_active, created_at, updated_at, deleted_at, shop_id FROM promotions
 WHERE deleted_at IS NULL
+  AND ($3::uuid IS NULL OR shop_id = $3)
 ORDER BY created_at DESC
 LIMIT $1 OFFSET $2
 `
 
 type ListPromotionsParams struct {
-	Limit  int32 `json:"limit"`
-	Offset int32 `json:"offset"`
+	Limit  int32       `json:"limit"`
+	Offset int32       `json:"offset"`
+	ShopID pgtype.UUID `json:"shop_id"`
 }
 
 func (q *Queries) ListPromotions(ctx context.Context, arg ListPromotionsParams) ([]Promotion, error) {
-	rows, err := q.db.Query(ctx, listPromotions, arg.Limit, arg.Offset)
+	rows, err := q.db.Query(ctx, listPromotions, arg.Limit, arg.Offset, arg.ShopID)
 	if err != nil {
 		return nil, err
 	}
@@ -367,17 +376,19 @@ func (q *Queries) ListPromotions(ctx context.Context, arg ListPromotionsParams) 
 const listTrashPromotions = `-- name: ListTrashPromotions :many
 SELECT id, name, description, scope, discount_type, discount_value, max_discount_amount, start_date, end_date, is_active, created_at, updated_at, deleted_at, shop_id FROM promotions
 WHERE deleted_at IS NOT NULL
+  AND ($3::uuid IS NULL OR shop_id = $3)
 ORDER BY created_at DESC
 LIMIT $1 OFFSET $2
 `
 
 type ListTrashPromotionsParams struct {
-	Limit  int32 `json:"limit"`
-	Offset int32 `json:"offset"`
+	Limit  int32       `json:"limit"`
+	Offset int32       `json:"offset"`
+	ShopID pgtype.UUID `json:"shop_id"`
 }
 
 func (q *Queries) ListTrashPromotions(ctx context.Context, arg ListTrashPromotionsParams) ([]Promotion, error) {
-	rows, err := q.db.Query(ctx, listTrashPromotions, arg.Limit, arg.Offset)
+	rows, err := q.db.Query(ctx, listTrashPromotions, arg.Limit, arg.Offset, arg.ShopID)
 	if err != nil {
 		return nil, err
 	}

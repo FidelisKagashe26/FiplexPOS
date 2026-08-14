@@ -8,9 +8,10 @@ INSERT INTO promotions (
     max_discount_amount,
     start_date,
     end_date,
-    is_active
+    is_active,
+    shop_id
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8, $9
+    $1, $2, $3, $4, $5, $6, $7, $8, $9, sqlc.narg('shop_id')
 ) RETURNING *;
 
 -- name: UpdatePromotion :one
@@ -37,20 +38,26 @@ WHERE id = $1;
 -- name: ListPromotions :many
 SELECT * FROM promotions
 WHERE deleted_at IS NULL
+  AND (sqlc.narg('shop_id')::uuid IS NULL OR shop_id = sqlc.narg('shop_id'))
 ORDER BY created_at DESC
 LIMIT $1 OFFSET $2;
 
 -- name: ListTrashPromotions :many
 SELECT * FROM promotions
 WHERE deleted_at IS NOT NULL
+  AND (sqlc.narg('shop_id')::uuid IS NULL OR shop_id = sqlc.narg('shop_id'))
 ORDER BY created_at DESC
 LIMIT $1 OFFSET $2;
 
 -- name: CountPromotions :one
-SELECT COUNT(*) FROM promotions WHERE deleted_at IS NULL;
+SELECT COUNT(*) FROM promotions
+WHERE deleted_at IS NULL
+  AND (sqlc.narg('shop_id')::uuid IS NULL OR shop_id = sqlc.narg('shop_id'));
 
 -- name: CountTrashPromotions :one
-SELECT COUNT(*) FROM promotions WHERE deleted_at IS NOT NULL;
+SELECT COUNT(*) FROM promotions
+WHERE deleted_at IS NOT NULL
+  AND (sqlc.narg('shop_id')::uuid IS NULL OR shop_id = sqlc.narg('shop_id'));
 
 -- name: RestorePromotion :exec
 UPDATE promotions
