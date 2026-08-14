@@ -228,7 +228,7 @@ func (s *PrdService) UploadProductOptionImage(ctx context.Context, productID uui
 	}, nil
 }
 func (s *PrdService) CreateProductOption(ctx context.Context, productID uuid.UUID, req CreateProductOptionRequestStandalone) (*ProductOptionResponse, error) {
-	_, err := s.repo.GetProductWithOptions(ctx, productID)
+	_, err := s.repo.GetProductWithOptions(ctx, products_repo.GetProductWithOptionsParams{ID: productID, ShopID: common.ShopParamFromContext(ctx)})
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			s.log.Warnf("Parent product not found for new option", "productID", productID)
@@ -274,7 +274,7 @@ func (s *PrdService) CreateProductOption(ctx context.Context, productID uuid.UUI
 }
 func (s *PrdService) DeleteProduct(ctx context.Context, productID uuid.UUID) error {
 
-	product, err := s.repo.GetProductWithOptions(ctx, productID)
+	product, err := s.repo.GetProductWithOptions(ctx, products_repo.GetProductWithOptionsParams{ID: productID, ShopID: common.ShopParamFromContext(ctx)})
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			s.log.Warnf("Product not found for deletion", "productID", productID)
@@ -284,7 +284,7 @@ func (s *PrdService) DeleteProduct(ctx context.Context, productID uuid.UUID) err
 		return err
 	}
 
-	err = s.repo.SoftDeleteProduct(ctx, productID)
+	err = s.repo.SoftDeleteProduct(ctx, products_repo.SoftDeleteProductParams{ID: productID, ShopID: common.ShopParamFromContext(ctx)})
 	if err != nil {
 		s.log.Errorf("Failed to soft delete product in repository", "error", err, "productID", productID)
 		return err
@@ -324,7 +324,7 @@ func (s *PrdService) GetProductByID(ctx context.Context, productID uuid.UUID) (*
 }
 
 func (s *PrdService) UpdateProduct(ctx context.Context, productID uuid.UUID, req UpdateProductRequest) (*ProductResponse, error) {
-	product, err := s.repo.GetProductWithOptions(ctx, productID)
+	product, err := s.repo.GetProductWithOptions(ctx, products_repo.GetProductWithOptionsParams{ID: productID, ShopID: common.ShopParamFromContext(ctx)})
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			s.log.Warnf("Product not found for update", "productID", productID)
@@ -364,9 +364,10 @@ func (s *PrdService) UpdateProduct(ctx context.Context, productID uuid.UUID, req
 	}
 
 	updateParams := products_repo.UpdateProductParams{
-		ID:    productID,
-		Name:  req.Name,
-		Stock: req.Stock,
+		ID:     productID,
+		Name:   req.Name,
+		Stock:  req.Stock,
+		ShopID: common.ShopParamFromContext(ctx),
 	}
 
 	if req.Price != nil {
@@ -601,15 +602,18 @@ func (s *PrdService) ListProducts(ctx context.Context, req ListProductsRequest) 
 	limit := req.Limit
 	offset := (page - 1) * limit
 
+	shopParam := common.ShopParamFromContext(ctx)
 	listParams := products_repo.ListProductsParams{
 		Limit:      int32(limit),
 		Offset:     int32(offset),
 		CategoryID: req.CategoryID,
 		SearchText: &req.Search,
+		ShopID:     shopParam,
 	}
 	countParams := products_repo.CountProductsParams{
 		CategoryID: req.CategoryID,
 		SearchText: &req.Search,
+		ShopID:     shopParam,
 	}
 
 	s.log.Infof("list params list product: %+v", listParams)
@@ -696,6 +700,7 @@ func (s *PrdService) CreateProduct(ctx context.Context, req CreateProductRequest
 			Price:     price,
 			Stock:     req.Stock,
 			CostPrice: numericCost,
+			ShopID:    common.ShopParamFromContext(ctx),
 		}
 
 		newProduct, err = qtx.CreateProduct(ctx, productParams)
@@ -785,6 +790,7 @@ func (s *PrdService) UploadProductImage(ctx context.Context, productID uuid.UUID
 	updateParams := products_repo.UpdateProductParams{
 		ID:       productID,
 		ImageUrl: &filename,
+		ShopID:   common.ShopParamFromContext(ctx),
 	}
 	_, err = s.repo.UpdateProduct(ctx, updateParams)
 	if err != nil {
@@ -822,15 +828,18 @@ func (s *PrdService) ListDeletedProducts(ctx context.Context, req ListProductsRe
 	limit := req.Limit
 	offset := (page - 1) * limit
 
+	shopParam := common.ShopParamFromContext(ctx)
 	listParams := products_repo.ListDeletedProductsParams{
 		Limit:      int32(limit),
 		Offset:     int32(offset),
 		CategoryID: req.CategoryID,
 		SearchText: &req.Search,
+		ShopID:     shopParam,
 	}
 	countParams := products_repo.CountDeletedProductsParams{
 		CategoryID: req.CategoryID,
 		SearchText: &req.Search,
+		ShopID:     shopParam,
 	}
 
 	var wg sync.WaitGroup
@@ -911,7 +920,7 @@ func (s *PrdService) GetDeletedProduct(ctx context.Context, productID uuid.UUID)
 	// Wait, the query GetDeletedProduct in products.sql returns specific columns similar to GetProductWithOptions?
 	// Let's assume standard behavior based on sql definition.
 
-	row, err := s.repo.GetDeletedProduct(ctx, productID)
+	row, err := s.repo.GetDeletedProduct(ctx, products_repo.GetDeletedProductParams{ID: productID, ShopID: common.ShopParamFromContext(ctx)})
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, common.ErrNotFound
@@ -996,7 +1005,7 @@ func (s *PrdService) GetDeletedProduct(ctx context.Context, productID uuid.UUID)
 
 func (s *PrdService) RestoreProduct(ctx context.Context, productID uuid.UUID) error {
 	// Check if exists in deleted state
-	_, err := s.repo.GetDeletedProduct(ctx, productID)
+	_, err := s.repo.GetDeletedProduct(ctx, products_repo.GetDeletedProductParams{ID: productID, ShopID: common.ShopParamFromContext(ctx)})
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return common.ErrNotFound
@@ -1004,7 +1013,7 @@ func (s *PrdService) RestoreProduct(ctx context.Context, productID uuid.UUID) er
 		return err
 	}
 
-	err = s.repo.RestoreProduct(ctx, productID)
+	err = s.repo.RestoreProduct(ctx, products_repo.RestoreProductParams{ID: productID, ShopID: common.ShopParamFromContext(ctx)})
 	if err != nil {
 		s.log.Errorf("Failed to restore product", "productID", productID, "error", err)
 		return err
@@ -1031,7 +1040,7 @@ func (s *PrdService) RestoreProductsBulk(ctx context.Context, req RestoreBulkReq
 		ids = append(ids, uid)
 	}
 
-	err := s.repo.RestoreProductsBulk(ctx, ids)
+	err := s.repo.RestoreProductsBulk(ctx, products_repo.RestoreProductsBulkParams{Column1: ids, ShopID: common.ShopParamFromContext(ctx)})
 	if err != nil {
 		s.log.Errorf("Failed to bulk restore products", "error", err)
 		return err

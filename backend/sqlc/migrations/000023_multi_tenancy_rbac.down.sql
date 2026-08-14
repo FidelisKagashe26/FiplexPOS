@@ -1,0 +1,14 @@
+ALTER TABLE activity_logs DROP COLUMN IF EXISTS shop_id;
+ALTER TABLE customers DROP COLUMN IF EXISTS shop_id;
+ALTER TABLE cash_transactions DROP COLUMN IF EXISTS shop_id;
+ALTER TABLE shifts DROP COLUMN IF EXISTS shop_id;
+ALTER TABLE promotions DROP COLUMN IF EXISTS shop_id;
+ALTER TABLE categories DROP COLUMN IF EXISTS shop_id;
+ALTER TABLE orders DROP COLUMN IF EXISTS shop_id;
+ALTER TABLE products DROP COLUMN IF EXISTS shop_id;
+
+DROP TABLE IF EXISTS user_shop_roles;
+DROP TABLE IF EXISTS role_permissions;
+DROP TABLE IF EXISTS roles;
+DROP TABLE IF EXISTS permissions;
+DROP TABLE IF EXISTS shops;

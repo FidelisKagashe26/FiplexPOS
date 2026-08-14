@@ -42,6 +42,7 @@ func (s *CtgService) GetCategoryWithProductCount(ctx context.Context) (*[]Catego
 	params := categories_repo.ListCategoriesWithProductsParams{
 		Limit:  100,
 		Offset: 0,
+		ShopID: common.ShopParamFromContext(ctx),
 	}
 
 	categories, err := s.repo.ListCategoriesWithProducts(ctx, params)
@@ -75,7 +76,9 @@ func (s *CtgService) GetCategoryWithProductCount(ctx context.Context) (*[]Catego
 }
 
 func (s *CtgService) DeleteCategory(ctx context.Context, categoryID int32) error {
-	exists, err := s.repo.ExistsCategory(ctx, categoryID)
+	shopParam := common.ShopParamFromContext(ctx)
+
+	exists, err := s.repo.ExistsCategory(ctx, categories_repo.ExistsCategoryParams{ID: categoryID, ShopID: shopParam})
 	if err != nil {
 		s.log.Errorf("DeleteCategory | Failed to check if category exists: %v, categoryID=%d", err, categoryID)
 		return common.ErrInternal
@@ -101,7 +104,7 @@ func (s *CtgService) DeleteCategory(ctx context.Context, categoryID int32) error
 		return common.ErrCategoryInUse
 	}
 
-	err = s.repo.DeleteCategory(ctx, categoryID)
+	err = s.repo.DeleteCategory(ctx, categories_repo.DeleteCategoryParams{ID: categoryID, ShopID: shopParam})
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
@@ -134,8 +137,9 @@ func (s *CtgService) DeleteCategory(ctx context.Context, categoryID int32) error
 
 func (s *CtgService) UpdateCategory(ctx context.Context, categoryID int32, req CreateCategoryRequest) (*CategoryResponse, error) {
 	params := categories_repo.UpdateCategoryParams{
-		ID:   categoryID,
-		Name: req.Name,
+		ID:     categoryID,
+		Name:   req.Name,
+		ShopID: common.ShopParamFromContext(ctx),
 	}
 
 	category, err := s.repo.UpdateCategory(ctx, params)
@@ -181,7 +185,7 @@ func (s *CtgService) UpdateCategory(ctx context.Context, categoryID int32, req C
 
 func (s *CtgService) GetCategoryByID(ctx context.Context, categoryID int32) (*CategoryResponse, error) {
 
-	category, err := s.repo.GetCategory(ctx, categoryID)
+	category, err := s.repo.GetCategory(ctx, categories_repo.GetCategoryParams{ID: categoryID, ShopID: common.ShopParamFromContext(ctx)})
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
@@ -206,7 +210,7 @@ func (s *CtgService) GetCategoryByID(ctx context.Context, categoryID int32) (*Ca
 
 func (s *CtgService) CreateCategory(ctx context.Context, req CreateCategoryRequest) (*CategoryResponse, error) {
 
-	category, err := s.repo.CreateCategory(ctx, req.Name)
+	category, err := s.repo.CreateCategory(ctx, categories_repo.CreateCategoryParams{Name: req.Name, ShopID: common.ShopParamFromContext(ctx)})
 	if err != nil {
 		s.log.Errorf("CreateCategory | Failed to create category: %v", err)
 		return nil, common.ErrInternal
@@ -247,6 +251,7 @@ func (s *CtgService) GetAllCategories(ctx context.Context, req ListCategoryReque
 	params := categories_repo.ListCategoriesParams{
 		Limit:  int32(req.Limit),
 		Offset: int32((req.Page - 1) * req.Limit),
+		ShopID: common.ShopParamFromContext(ctx),
 	}
 
 	categories, err := s.repo.ListCategories(ctx, params)

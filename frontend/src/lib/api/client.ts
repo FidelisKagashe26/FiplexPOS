@@ -23,6 +23,17 @@ export const axiosInstance = axios.create({
     withCredentials: true,
 })
 
+axiosInstance.interceptors.request.use(
+    (config) => {
+        const shopId = localStorage.getItem('activeShopId')
+        if (shopId) {
+            config.headers['X-Shop-Id'] = shopId
+        }
+        return config
+    },
+    (error) => Promise.reject(error)
+)
+
 axiosInstance.interceptors.response.use(
     (response) => response,
     async (error) => {

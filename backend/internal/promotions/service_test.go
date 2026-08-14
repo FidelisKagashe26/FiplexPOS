@@ -86,8 +86,8 @@ func TestPromotionService_CreatePromotion(t *testing.T) {
 				pgtype.Timestamptz{Time: req.EndDate, Valid: true},
 				req.IsActive,
 			).
-			WillReturnRows(pgxmock.NewRows([]string{"id", "name", "description", "scope", "discount_type", "discount_value", "max_discount_amount", "start_date", "end_date", "is_active", "created_at", "updated_at", "deleted_at"}).
-				AddRow(promoID, req.Name, &req.Description, req.Scope, req.DiscountType, utils.Int64ToNumeric(req.DiscountValue), utils.Int64PtrToNumeric(req.MaxDiscountAmount), pgtype.Timestamptz{Time: req.StartDate, Valid: true}, pgtype.Timestamptz{Time: req.EndDate, Valid: true}, req.IsActive, pgtype.Timestamptz{Time: now, Valid: true}, pgtype.Timestamptz{Time: now, Valid: true}, pgtype.Timestamptz{}))
+			WillReturnRows(pgxmock.NewRows([]string{"id", "name", "description", "scope", "discount_type", "discount_value", "max_discount_amount", "start_date", "end_date", "is_active", "created_at", "updated_at", "deleted_at", "shop_id"}).
+				AddRow(promoID, req.Name, &req.Description, req.Scope, req.DiscountType, utils.Int64ToNumeric(req.DiscountValue), utils.Int64PtrToNumeric(req.MaxDiscountAmount), pgtype.Timestamptz{Time: req.StartDate, Valid: true}, pgtype.Timestamptz{Time: req.EndDate, Valid: true}, req.IsActive, pgtype.Timestamptz{Time: now, Valid: true}, pgtype.Timestamptz{Time: now, Valid: true}, pgtype.Timestamptz{}, pgtype.UUID{}))
 
 		// Expect INSERT Promotion Rule on mockTx (recorded on mockDB)
 		mockDB.ExpectQuery("INSERT INTO promotion_rules").
@@ -105,10 +105,10 @@ func TestPromotionService_CreatePromotion(t *testing.T) {
 
 		// Expect GetPromotion queries on mockDB
 		// 1. GetPromotionByID
-		mockDB.ExpectQuery("SELECT id, name, description, scope, discount_type, discount_value, max_discount_amount, start_date, end_date, is_active, created_at, updated_at, deleted_at FROM promotions WHERE id = \\$1 LIMIT 1").
+		mockDB.ExpectQuery("SELECT .* FROM promotions WHERE id = \\$1 LIMIT 1").
 			WithArgs(promoID).
-			WillReturnRows(pgxmock.NewRows([]string{"id", "name", "description", "scope", "discount_type", "discount_value", "max_discount_amount", "start_date", "end_date", "is_active", "created_at", "updated_at", "deleted_at"}).
-				AddRow(promoID, req.Name, &req.Description, req.Scope, req.DiscountType, utils.Int64ToNumeric(req.DiscountValue), utils.Int64PtrToNumeric(req.MaxDiscountAmount), pgtype.Timestamptz{Time: req.StartDate, Valid: true}, pgtype.Timestamptz{Time: req.EndDate, Valid: true}, req.IsActive, pgtype.Timestamptz{Time: now, Valid: true}, pgtype.Timestamptz{Time: now, Valid: true}, pgtype.Timestamptz{}))
+			WillReturnRows(pgxmock.NewRows([]string{"id", "name", "description", "scope", "discount_type", "discount_value", "max_discount_amount", "start_date", "end_date", "is_active", "created_at", "updated_at", "deleted_at", "shop_id"}).
+				AddRow(promoID, req.Name, &req.Description, req.Scope, req.DiscountType, utils.Int64ToNumeric(req.DiscountValue), utils.Int64PtrToNumeric(req.MaxDiscountAmount), pgtype.Timestamptz{Time: req.StartDate, Valid: true}, pgtype.Timestamptz{Time: req.EndDate, Valid: true}, req.IsActive, pgtype.Timestamptz{Time: now, Valid: true}, pgtype.Timestamptz{Time: now, Valid: true}, pgtype.Timestamptz{}, pgtype.UUID{}))
 
 		// 2. GetPromotionRules
 		mockDB.ExpectQuery("SELECT id, promotion_id, rule_type, rule_value, description, created_at, updated_at FROM promotion_rules WHERE promotion_id = \\$1").
@@ -197,8 +197,8 @@ func TestPromotionService_UpdatePromotion(t *testing.T) {
 				pgtype.Timestamptz{Time: req.EndDate, Valid: true},
 				req.IsActive,
 			).
-			WillReturnRows(pgxmock.NewRows([]string{"id", "name", "description", "scope", "discount_type", "discount_value", "max_discount_amount", "start_date", "end_date", "is_active", "created_at", "updated_at", "deleted_at"}).
-				AddRow(promoID, req.Name, &req.Description, req.Scope, req.DiscountType, utils.Int64ToNumeric(req.DiscountValue), utils.Int64PtrToNumeric(req.MaxDiscountAmount), pgtype.Timestamptz{Time: req.StartDate, Valid: true}, pgtype.Timestamptz{Time: req.EndDate, Valid: true}, req.IsActive, pgtype.Timestamptz{Time: now, Valid: true}, pgtype.Timestamptz{Time: now, Valid: true}, pgtype.Timestamptz{}))
+			WillReturnRows(pgxmock.NewRows([]string{"id", "name", "description", "scope", "discount_type", "discount_value", "max_discount_amount", "start_date", "end_date", "is_active", "created_at", "updated_at", "deleted_at", "shop_id"}).
+				AddRow(promoID, req.Name, &req.Description, req.Scope, req.DiscountType, utils.Int64ToNumeric(req.DiscountValue), utils.Int64PtrToNumeric(req.MaxDiscountAmount), pgtype.Timestamptz{Time: req.StartDate, Valid: true}, pgtype.Timestamptz{Time: req.EndDate, Valid: true}, req.IsActive, pgtype.Timestamptz{Time: now, Valid: true}, pgtype.Timestamptz{Time: now, Valid: true}, pgtype.Timestamptz{}, pgtype.UUID{}))
 
 		// Delete old rules/targets
 		mockDB.ExpectExec("DELETE FROM promotion_rules").WithArgs(promoID).WillReturnResult(pgxmock.NewResult("DELETE", 1))
@@ -209,10 +209,10 @@ func TestPromotionService_UpdatePromotion(t *testing.T) {
 		mockActivityService.EXPECT().Log(ctx, userID, repository.LogActionTypeUPDATE, repository.LogEntityTypePROMOTION, promoID.String(), gomock.Any())
 
 		// GetPromotion queries on mockDB
-		mockDB.ExpectQuery("SELECT id, name, description, scope, discount_type, discount_value, max_discount_amount, start_date, end_date, is_active, created_at, updated_at, deleted_at FROM promotions WHERE id = \\$1 LIMIT 1").
+		mockDB.ExpectQuery("SELECT .* FROM promotions WHERE id = \\$1 LIMIT 1").
 			WithArgs(promoID).
-			WillReturnRows(pgxmock.NewRows([]string{"id", "name", "description", "scope", "discount_type", "discount_value", "max_discount_amount", "start_date", "end_date", "is_active", "created_at", "updated_at", "deleted_at"}).
-				AddRow(promoID, req.Name, &req.Description, req.Scope, req.DiscountType, utils.Int64ToNumeric(req.DiscountValue), utils.Int64PtrToNumeric(req.MaxDiscountAmount), pgtype.Timestamptz{Time: req.StartDate, Valid: true}, pgtype.Timestamptz{Time: req.EndDate, Valid: true}, req.IsActive, pgtype.Timestamptz{Time: now, Valid: true}, pgtype.Timestamptz{Time: now, Valid: true}, pgtype.Timestamptz{}))
+			WillReturnRows(pgxmock.NewRows([]string{"id", "name", "description", "scope", "discount_type", "discount_value", "max_discount_amount", "start_date", "end_date", "is_active", "created_at", "updated_at", "deleted_at", "shop_id"}).
+				AddRow(promoID, req.Name, &req.Description, req.Scope, req.DiscountType, utils.Int64ToNumeric(req.DiscountValue), utils.Int64PtrToNumeric(req.MaxDiscountAmount), pgtype.Timestamptz{Time: req.StartDate, Valid: true}, pgtype.Timestamptz{Time: req.EndDate, Valid: true}, req.IsActive, pgtype.Timestamptz{Time: now, Valid: true}, pgtype.Timestamptz{Time: now, Valid: true}, pgtype.Timestamptz{}, pgtype.UUID{}))
 
 		mockDB.ExpectQuery("SELECT id, promotion_id, rule_type, rule_value, description, created_at, updated_at FROM promotion_rules").
 			WithArgs(promoID).
@@ -277,10 +277,10 @@ func TestPromotionService_ListPromotions(t *testing.T) {
 		mockDB.ExpectQuery("SELECT COUNT\\(\\*\\) FROM promotions WHERE deleted_at IS NULL").
 			WillReturnRows(pgxmock.NewRows([]string{"count"}).AddRow(int64(1)))
 
-		mockDB.ExpectQuery("SELECT id, name, description, scope, discount_type, discount_value, max_discount_amount, start_date, end_date, is_active, created_at, updated_at, deleted_at FROM promotions WHERE deleted_at IS NULL ORDER BY created_at DESC LIMIT \\$1 OFFSET \\$2").
+		mockDB.ExpectQuery("SELECT .* FROM promotions WHERE deleted_at IS NULL ORDER BY created_at DESC LIMIT \\$1 OFFSET \\$2").
 			WithArgs(int32(limit), int32(0)).
-			WillReturnRows(pgxmock.NewRows([]string{"id", "name", "description", "scope", "discount_type", "discount_value", "max_discount_amount", "start_date", "end_date", "is_active", "created_at", "updated_at", "deleted_at"}).
-				AddRow(uuid.New(), "Promo 1", utils.StringPtr("Desc"), promo_repo.PromotionScopeORDER, promo_repo.DiscountTypePercentage, utils.Int64ToNumeric(10), utils.Int64ToNumeric(5000), pgtype.Timestamptz{Time: time.Now(), Valid: true}, pgtype.Timestamptz{Time: time.Now(), Valid: true}, true, pgtype.Timestamptz{Time: time.Now(), Valid: true}, pgtype.Timestamptz{Time: time.Now(), Valid: true}, pgtype.Timestamptz{}))
+			WillReturnRows(pgxmock.NewRows([]string{"id", "name", "description", "scope", "discount_type", "discount_value", "max_discount_amount", "start_date", "end_date", "is_active", "created_at", "updated_at", "deleted_at", "shop_id"}).
+				AddRow(uuid.New(), "Promo 1", utils.StringPtr("Desc"), promo_repo.PromotionScopeORDER, promo_repo.DiscountTypePercentage, utils.Int64ToNumeric(10), utils.Int64ToNumeric(5000), pgtype.Timestamptz{Time: time.Now(), Valid: true}, pgtype.Timestamptz{Time: time.Now(), Valid: true}, true, pgtype.Timestamptz{Time: time.Now(), Valid: true}, pgtype.Timestamptz{Time: time.Now(), Valid: true}, pgtype.Timestamptz{}, pgtype.UUID{}))
 
 		// Get rules and targets for the promotion
 		mockDB.ExpectQuery("SELECT id, promotion_id, rule_type, rule_value, description, created_at, updated_at FROM promotion_rules").
@@ -349,10 +349,10 @@ func TestPromotionService_GetPromotion(t *testing.T) {
 	now := time.Now()
 
 	t.Run("Success", func(t *testing.T) {
-		mockDB.ExpectQuery("SELECT id, name, description, scope, discount_type, discount_value, max_discount_amount, start_date, end_date, is_active, created_at, updated_at, deleted_at FROM promotions WHERE id = \\$1 LIMIT 1").
+		mockDB.ExpectQuery("SELECT .* FROM promotions WHERE id = \\$1 LIMIT 1").
 			WithArgs(promoID).
-			WillReturnRows(pgxmock.NewRows([]string{"id", "name", "description", "scope", "discount_type", "discount_value", "max_discount_amount", "start_date", "end_date", "is_active", "created_at", "updated_at", "deleted_at"}).
-				AddRow(promoID, "Promo Get", utils.StringPtr("Desc"), promo_repo.PromotionScopeORDER, promo_repo.DiscountTypePercentage, utils.Int64ToNumeric(10), nil, pgtype.Timestamptz{Time: now, Valid: true}, pgtype.Timestamptz{Time: now, Valid: true}, true, pgtype.Timestamptz{Time: now, Valid: true}, pgtype.Timestamptz{Time: now, Valid: true}, pgtype.Timestamptz{}))
+			WillReturnRows(pgxmock.NewRows([]string{"id", "name", "description", "scope", "discount_type", "discount_value", "max_discount_amount", "start_date", "end_date", "is_active", "created_at", "updated_at", "deleted_at", "shop_id"}).
+				AddRow(promoID, "Promo Get", utils.StringPtr("Desc"), promo_repo.PromotionScopeORDER, promo_repo.DiscountTypePercentage, utils.Int64ToNumeric(10), nil, pgtype.Timestamptz{Time: now, Valid: true}, pgtype.Timestamptz{Time: now, Valid: true}, true, pgtype.Timestamptz{Time: now, Valid: true}, pgtype.Timestamptz{Time: now, Valid: true}, pgtype.Timestamptz{}, pgtype.UUID{}))
 
 		mockDB.ExpectQuery("SELECT id, promotion_id, rule_type, rule_value, description, created_at, updated_at FROM promotion_rules WHERE promotion_id = \\$1").
 			WithArgs(promoID).
@@ -368,7 +368,7 @@ func TestPromotionService_GetPromotion(t *testing.T) {
 	})
 
 	t.Run("NotFound", func(t *testing.T) {
-		mockDB.ExpectQuery("SELECT id, name, description, scope, discount_type, discount_value, max_discount_amount, start_date, end_date, is_active, created_at, updated_at, deleted_at FROM promotions WHERE id = \\$1 LIMIT 1").
+		mockDB.ExpectQuery("SELECT .* FROM promotions WHERE id = \\$1 LIMIT 1").
 			WithArgs(promoID).
 			WillReturnError(pgx.ErrNoRows)
 

@@ -206,32 +206,32 @@ func (mr *MockProductQuerierMockRecorder) DecreaseProductStock(ctx, arg any) *go
 }
 
 // DeleteProduct mocks base method.
-func (m *MockProductQuerier) DeleteProduct(ctx context.Context, id uuid.UUID) error {
+func (m *MockProductQuerier) DeleteProduct(ctx context.Context, arg repository.DeleteProductParams) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteProduct", ctx, id)
+	ret := m.ctrl.Call(m, "DeleteProduct", ctx, arg)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // DeleteProduct indicates an expected call of DeleteProduct.
-func (mr *MockProductQuerierMockRecorder) DeleteProduct(ctx, id any) *gomock.Call {
+func (mr *MockProductQuerierMockRecorder) DeleteProduct(ctx, arg any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteProduct", reflect.TypeOf((*MockProductQuerier)(nil).DeleteProduct), ctx, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteProduct", reflect.TypeOf((*MockProductQuerier)(nil).DeleteProduct), ctx, arg)
 }
 
 // GetDeletedProduct mocks base method.
-func (m *MockProductQuerier) GetDeletedProduct(ctx context.Context, id uuid.UUID) (repository.GetDeletedProductRow, error) {
+func (m *MockProductQuerier) GetDeletedProduct(ctx context.Context, arg repository.GetDeletedProductParams) (repository.GetDeletedProductRow, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetDeletedProduct", ctx, id)
+	ret := m.ctrl.Call(m, "GetDeletedProduct", ctx, arg)
 	ret0, _ := ret[0].(repository.GetDeletedProductRow)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetDeletedProduct indicates an expected call of GetDeletedProduct.
-func (mr *MockProductQuerierMockRecorder) GetDeletedProduct(ctx, id any) *gomock.Call {
+func (mr *MockProductQuerierMockRecorder) GetDeletedProduct(ctx, arg any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDeletedProduct", reflect.TypeOf((*MockProductQuerier)(nil).GetDeletedProduct), ctx, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDeletedProduct", reflect.TypeOf((*MockProductQuerier)(nil).GetDeletedProduct), ctx, arg)
 }
 
 // GetProductByID mocks base method.
@@ -295,18 +295,18 @@ func (mr *MockProductQuerierMockRecorder) GetProductOptionsByIDs(ctx, dollar_1 a
 }
 
 // GetProductWithOptions mocks base method.
-func (m *MockProductQuerier) GetProductWithOptions(ctx context.Context, id uuid.UUID) (repository.GetProductWithOptionsRow, error) {
+func (m *MockProductQuerier) GetProductWithOptions(ctx context.Context, arg repository.GetProductWithOptionsParams) (repository.GetProductWithOptionsRow, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetProductWithOptions", ctx, id)
+	ret := m.ctrl.Call(m, "GetProductWithOptions", ctx, arg)
 	ret0, _ := ret[0].(repository.GetProductWithOptionsRow)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetProductWithOptions indicates an expected call of GetProductWithOptions.
-func (mr *MockProductQuerierMockRecorder) GetProductWithOptions(ctx, id any) *gomock.Call {
+func (mr *MockProductQuerierMockRecorder) GetProductWithOptions(ctx, arg any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProductWithOptions", reflect.TypeOf((*MockProductQuerier)(nil).GetProductWithOptions), ctx, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProductWithOptions", reflect.TypeOf((*MockProductQuerier)(nil).GetProductWithOptions), ctx, arg)
 }
 
 // GetProductsByIDs mocks base method.
@@ -415,45 +415,45 @@ func (mr *MockProductQuerierMockRecorder) ListProducts(ctx, arg any) *gomock.Cal
 }
 
 // RestoreProduct mocks base method.
-func (m *MockProductQuerier) RestoreProduct(ctx context.Context, id uuid.UUID) error {
+func (m *MockProductQuerier) RestoreProduct(ctx context.Context, arg repository.RestoreProductParams) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RestoreProduct", ctx, id)
+	ret := m.ctrl.Call(m, "RestoreProduct", ctx, arg)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // RestoreProduct indicates an expected call of RestoreProduct.
-func (mr *MockProductQuerierMockRecorder) RestoreProduct(ctx, id any) *gomock.Call {
+func (mr *MockProductQuerierMockRecorder) RestoreProduct(ctx, arg any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RestoreProduct", reflect.TypeOf((*MockProductQuerier)(nil).RestoreProduct), ctx, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RestoreProduct", reflect.TypeOf((*MockProductQuerier)(nil).RestoreProduct), ctx, arg)
 }
 
 // RestoreProductsBulk mocks base method.
-func (m *MockProductQuerier) RestoreProductsBulk(ctx context.Context, dollar_1 []uuid.UUID) error {
+func (m *MockProductQuerier) RestoreProductsBulk(ctx context.Context, arg repository.RestoreProductsBulkParams) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RestoreProductsBulk", ctx, dollar_1)
+	ret := m.ctrl.Call(m, "RestoreProductsBulk", ctx, arg)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // RestoreProductsBulk indicates an expected call of RestoreProductsBulk.
-func (mr *MockProductQuerierMockRecorder) RestoreProductsBulk(ctx, dollar_1 any) *gomock.Call {
+func (mr *MockProductQuerierMockRecorder) RestoreProductsBulk(ctx, arg any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RestoreProductsBulk", reflect.TypeOf((*MockProductQuerier)(nil).RestoreProductsBulk), ctx, dollar_1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RestoreProductsBulk", reflect.TypeOf((*MockProductQuerier)(nil).RestoreProductsBulk), ctx, arg)
 }
 
 // SoftDeleteProduct mocks base method.
-func (m *MockProductQuerier) SoftDeleteProduct(ctx context.Context, id uuid.UUID) error {
+func (m *MockProductQuerier) SoftDeleteProduct(ctx context.Context, arg repository.SoftDeleteProductParams) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SoftDeleteProduct", ctx, id)
+	ret := m.ctrl.Call(m, "SoftDeleteProduct", ctx, arg)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // SoftDeleteProduct indicates an expected call of SoftDeleteProduct.
-func (mr *MockProductQuerierMockRecorder) SoftDeleteProduct(ctx, id any) *gomock.Call {
+func (mr *MockProductQuerierMockRecorder) SoftDeleteProduct(ctx, arg any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SoftDeleteProduct", reflect.TypeOf((*MockProductQuerier)(nil).SoftDeleteProduct), ctx, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SoftDeleteProduct", reflect.TypeOf((*MockProductQuerier)(nil).SoftDeleteProduct), ctx, arg)
 }
 
 // SoftDeleteProductOption mocks base method.

@@ -34,6 +34,7 @@ func (s *CustomerService) CreateCustomer(ctx context.Context, req CreateCustomer
 		Phone:   req.Phone,
 		Email:   req.Email,
 		Address: req.Address,
+		ShopID:  common.ShopParamFromContext(ctx),
 	})
 	if err != nil {
 		s.log.Errorf("CreateCustomer failed", "error", err)
@@ -43,7 +44,7 @@ func (s *CustomerService) CreateCustomer(ctx context.Context, req CreateCustomer
 }
 
 func (s *CustomerService) GetCustomer(ctx context.Context, id uuid.UUID) (*CustomerResponse, error) {
-	cust, err := s.repo.GetCustomerByID(ctx, id)
+	cust, err := s.repo.GetCustomerByID(ctx, repository.GetCustomerByIDParams{ID: id, ShopID: common.ShopParamFromContext(ctx)})
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, common.ErrNotFound
@@ -60,6 +61,7 @@ func (s *CustomerService) UpdateCustomer(ctx context.Context, id uuid.UUID, req 
 		Phone:   req.Phone,
 		Email:   req.Email,
 		Address: req.Address,
+		ShopID:  common.ShopParamFromContext(ctx),
 	})
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -72,7 +74,7 @@ func (s *CustomerService) UpdateCustomer(ctx context.Context, id uuid.UUID, req 
 }
 
 func (s *CustomerService) DeleteCustomer(ctx context.Context, id uuid.UUID) error {
-	err := s.repo.DeleteCustomer(ctx, id)
+	err := s.repo.DeleteCustomer(ctx, repository.DeleteCustomerParams{ID: id, ShopID: common.ShopParamFromContext(ctx)})
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return common.ErrNotFound
@@ -88,16 +90,19 @@ func (s *CustomerService) ListCustomers(ctx context.Context, req ListCustomersRe
 	limit := req.Limit
 	offset := (req.Page - 1) * limit
 
+	shopParam := common.ShopParamFromContext(ctx)
+
 	custs, err := s.repo.ListCustomers(ctx, repository.ListCustomersParams{
 		Limit:  int32(limit),
 		Offset: int32(offset),
+		ShopID: shopParam,
 	})
 	if err != nil {
 		s.log.Errorf("ListCustomers failed", "error", err)
 		return nil, err
 	}
 
-	count, err := s.repo.CountCustomers(ctx)
+	count, err := s.repo.CountCustomers(ctx, shopParam)
 	if err != nil {
 		s.log.Errorf("CountCustomers failed", "error", err)
 		return nil, err

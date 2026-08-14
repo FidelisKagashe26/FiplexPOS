@@ -16,7 +16,7 @@ func SeedCategory(ctx context.Context, q categories_repo.Querier, log logger.ILo
 	}
 
 	for _, nama := range kategori {
-		_, err := q.CreateCategory(ctx, nama)
+		_, err := q.CreateCategory(ctx, categories_repo.CreateCategoryParams{Name: nama})
 		if err != nil {
 			log.Errorf("gagal menambahkan kategori %s: %v", nama, err)
 			continue

@@ -9,6 +9,8 @@ import { ThemeManager } from "@/components/ThemeManager.tsx";
 import { ShiftProvider } from "@/context/ShiftContext";
 
 
+import { useDynamicTitle } from '@/hooks/useDynamicTitle';
+
 export const Route = createRootRouteWithContext<{
     queryClient: QueryClient
 }>()({
@@ -19,6 +21,8 @@ export const Route = createRootRouteWithContext<{
 
 
 function RootComponent() {
+    useDynamicTitle();
+
 
     return (
         <>

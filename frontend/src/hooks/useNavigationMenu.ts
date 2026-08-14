@@ -9,7 +9,9 @@ import {
     Receipt,
     Tag,
     ActivityIcon,
-    Users
+    Users,
+    Shield,
+    Store
 } from 'lucide-react'
 import { POSKasirInternalUserRepositoryUserRole } from '@/lib/api/generated'
 
@@ -99,6 +101,22 @@ export function useNavigationMenu(userRole?: POSKasirInternalUserRepositoryUserR
             allowedRoles: [
                 POSKasirInternalUserRepositoryUserRole.UserRoleAdmin,
                 POSKasirInternalUserRepositoryUserRole.UserRoleManager
+            ]
+        },
+        {
+            label: 'Roles & Perms',
+            icon: Shield,
+            to: '/$locale/roles',
+            allowedRoles: [
+                POSKasirInternalUserRepositoryUserRole.UserRoleAdmin
+            ]
+        },
+        {
+            label: 'Shops (Admin)',
+            icon: Store,
+            to: '/$locale/shops',
+            allowedRoles: [
+                POSKasirInternalUserRepositoryUserRole.UserRoleAdmin
             ]
         },
         {

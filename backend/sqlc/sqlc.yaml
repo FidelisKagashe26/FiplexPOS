@@ -291,3 +291,45 @@ sql:
               import: "github.com/google/uuid"
               type: "UUID"
 
+## Shops | internal/shops/sql/shops.sql
+  - engine: "postgresql"
+    queries: "../internal/shops/sql/"
+    schema: "migrations/"
+    gen:
+      go:
+        package: "repository"
+        out: "../internal/shops/repository"
+        sql_package: "pgx/v5"
+        emit_json_tags: true
+        emit_prepared_queries: true
+        emit_interface: true
+        emit_exact_table_names: false
+        emit_empty_slices: true
+        emit_pointers_for_null_types : true
+        overrides:
+          - db_type: "uuid"
+            go_type:
+              import: "github.com/google/uuid"
+              type: "UUID"
+
+## RBAC | internal/rbac/sql/rbac.sql
+  - engine: "postgresql"
+    queries: "../internal/rbac/sql/"
+    schema: "migrations/"
+    gen:
+      go:
+        package: "repository"
+        out: "../internal/rbac/repository"
+        sql_package: "pgx/v5"
+        emit_json_tags: true
+        emit_prepared_queries: true
+        emit_interface: true
+        emit_exact_table_names: false
+        emit_empty_slices: true
+        emit_pointers_for_null_types : true
+        overrides:
+          - db_type: "uuid"
+            go_type:
+              import: "github.com/google/uuid"
+              type: "UUID"
+

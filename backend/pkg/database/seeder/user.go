@@ -13,11 +13,10 @@ func SeedUsers(ctx context.Context, q user_repo.Querier, log logger.ILogger) err
 	userData := []struct {
 		Username string
 		Email    string
-		Role     user_repo.UserRole
 	}{
-		{"admin", "admin@example.com", user_repo.UserRoleAdmin},
-		{"cashier", "cashier@example.com", user_repo.UserRoleCashier},
-		{"manager", "manager@example.com", user_repo.UserRoleManager},
+		{"admin", "admin@example.com"},
+		{"cashier", "cashier@example.com"},
+		{"manager", "manager@example.com"},
 	}
 
 	hashPassword, err := utils.HashPassword("passwordrahasia")
@@ -37,7 +36,6 @@ func SeedUsers(ctx context.Context, q user_repo.Querier, log logger.ILogger) err
 			Username:     data.Username,
 			Email:        data.Email,
 			PasswordHash: hashPassword,
-			Role:         data.Role,
 			IsActive:     true,
 		}
 		_, err = q.CreateUser(ctx, params)

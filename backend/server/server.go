@@ -4,6 +4,7 @@ import (
 	"POS-fiplex/config"
 	"POS-fiplex/internal/activitylog"
 	activitylog_repo "POS-fiplex/internal/activitylog/repository"
+	"POS-fiplex/internal/authz"
 	"POS-fiplex/internal/cancellation_reasons"
 	cancellation_reasons_repo "POS-fiplex/internal/cancellation_reasons/repository"
 	"POS-fiplex/internal/categories"
@@ -21,12 +22,16 @@ import (
 	products_repo "POS-fiplex/internal/products/repository"
 	"POS-fiplex/internal/promotions"
 	promotions_repo "POS-fiplex/internal/promotions/repository"
+	"POS-fiplex/internal/rbac"
+	rbac_repo "POS-fiplex/internal/rbac/repository"
 	"POS-fiplex/internal/report"
 	report_repo "POS-fiplex/internal/report/repository"
 	"POS-fiplex/internal/settings"
 	settings_repo "POS-fiplex/internal/settings/repository"
 	"POS-fiplex/internal/shift"
 	shift_repo "POS-fiplex/internal/shift/repository"
+	"POS-fiplex/internal/shops"
+	shops_repo "POS-fiplex/internal/shops/repository"
 	"POS-fiplex/internal/user"
 	user_repo "POS-fiplex/internal/user/repository"
 	"POS-fiplex/pkg/cache"
@@ -104,6 +109,9 @@ type AppContainer struct {
 	CategoryRepo              categories_repo.Querier
 	PaymentMethodRepo         payment_methods_repo.Querier
 	CancellationReasonRepo    cancellation_reasons_repo.Querier
+	ShopHandler               *shops.ShopHandler
+	RBACHandler               *rbac.RBACHandler
+	Authz                     *authz.Resolver
 }
 
 func InitApp() *App {
@@ -250,6 +258,17 @@ func BuildAppContainer(app *App) *AppContainer {
 	shiftService := shift.NewService(shiftRepo, app.Logger, app.Cache)
 	shiftHandler := shift.NewHandler(shiftService, app.Logger)
 
+	// Shops Module
+	shopsRepo := shops_repo.New(app.DB.GetPool())
+	shopsService := shops.NewShopService(shopsRepo, userRepo, app.Logger)
+	shopsHandler := shops.NewShopHandler(shopsService, app.Validator)
+
+	// RBAC Module
+	rbacRepo := rbac_repo.New(app.DB.GetPool())
+	authzResolver := authz.NewResolver(rbacRepo, app.RedisCache, app.Logger)
+	rbacService := rbac.NewRBACService(rbacRepo, app.DB.GetPool(), authzResolver, app.Logger)
+	rbacHandler := rbac.NewRBACHandler(rbacService, authzResolver, app.Validator)
+
 	return &AppContainer{
 		AuthHandler:               authHandler,
 		UserHandler:               userHandler,
@@ -272,12 +291,23 @@ func BuildAppContainer(app *App) *AppContainer {
 		CategoryRepo:              categoryRepo,
 		PaymentMethodRepo:         paymentMethodRepo,
 		CancellationReasonRepo:    cancellationRepo,
+		ShopHandler:               shopsHandler,
+		RBACHandler:               rbacHandler,
+		Authz:                     authzResolver,
 	}
 }
 
 func StartServer(app *App) {
 	SetupMiddleware(app)
 	container := BuildAppContainer(app)
+
+	// Seed the permission catalog (idempotent). The Go catalog is the source of
+	// truth for which permissions exist; this upserts them on every boot.
+	seedCtx, seedCancel := context.WithTimeout(context.Background(), 30*time.Second)
+	if err := container.Authz.SeedPermissions(seedCtx); err != nil {
+		app.Logger.Errorf("StartServer | failed to seed permissions: %v", err)
+	}
+	seedCancel()
 
 	SetupCron(app, container)
 	SetupRoutes(app, container)

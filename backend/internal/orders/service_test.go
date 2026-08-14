@@ -150,7 +150,7 @@ func TestOrderService_CreateOrder(t *testing.T) {
 		"id", "user_id", "type", "status", "created_at", "updated_at",
 		"gross_total", "discount_amount", "net_total", "applied_promotion_id",
 		"payment_method_id", "payment_gateway_reference", "cash_received", "change_due",
-		"cancellation_reason_id", "cancellation_notes", "payment_url", "payment_token", "version", "tax_amount", "service_charge_amount", "customer_id",
+		"cancellation_reason_id", "cancellation_notes", "payment_url", "payment_token", "version", "tax_amount", "service_charge_amount", "customer_id", "shop_id",
 	}
 
 	// 19-column GetOrderWithDetails row (18 + items)
@@ -162,7 +162,7 @@ func TestOrderService_CreateOrder(t *testing.T) {
 			orders_repo.OrderTypeDineIn, orders_repo.OrderStatusOpen,
 			pgtype.Timestamptz{Time: now, Valid: true}, pgtype.Timestamptz{Time: now, Valid: true},
 			grossTotal, int64(0), netTotal, pgtype.UUID{},
-			nil, nil, nil, nil, nil, nil, nil, nil, int32(1), int64(0), int64(0), pgtype.UUID{},
+			nil, nil, nil, nil, nil, nil, nil, nil, int32(1), int64(0), int64(0), pgtype.UUID{}, pgtype.UUID{},
 		}
 	}
 
@@ -200,10 +200,10 @@ func TestOrderService_CreateOrder(t *testing.T) {
 			WithArgs(pgxmock.AnyArg()).
 			WillReturnRows(pgxmock.NewRows([]string{
 				"id", "name", "image_url", "price", "stock",
-				"created_at", "updated_at", "deleted_at", "cost_price",
+				"created_at", "updated_at", "deleted_at", "cost_price", "shop_id",
 			}).AddRow(
 				productID, "Test Product", nil, int64(10000), int32(10),
-				now, now, nil, pgtype.Numeric{Int: big.NewInt(5000), Exp: 0, Valid: true},
+				now, now, nil, pgtype.Numeric{Int: big.NewInt(5000), Exp: 0, Valid: true}, pgtype.UUID{},
 			))
 
 		// 3. BatchCreateOrderItems (INSERT INTO order_items)
@@ -750,7 +750,7 @@ func TestOrderService_CancelOrder(t *testing.T) {
 			"id", "user_id", "type", "status", "created_at", "updated_at",
 			"gross_total", "discount_amount", "net_total", "applied_promotion_id",
 			"payment_method_id", "payment_gateway_reference", "cash_received", "change_due",
-			"cancellation_reason_id", "cancellation_notes", "payment_url", "payment_token", "version", "tax_amount", "service_charge_amount", "customer_id",
+			"cancellation_reason_id", "cancellation_notes", "payment_url", "payment_token", "version", "tax_amount", "service_charge_amount", "customer_id", "shop_id",
 		}
 		orderWithDetailsColumns := append(append([]string{}, orderColumns...), "items")
 		now := time.Now()
@@ -779,7 +779,7 @@ func TestOrderService_CancelOrder(t *testing.T) {
 				orders_repo.OrderTypeDineIn, orders_repo.OrderStatusOpen,
 				pgtype.Timestamptz{Time: now, Valid: true}, pgtype.Timestamptz{Time: now, Valid: true},
 				int64(20000), int64(0), int64(20000), pgtype.UUID{},
-				nil, nil, nil, nil, nil, nil, nil, nil, int32(1), int64(0), int64(0), pgtype.UUID{},
+				nil, nil, nil, nil, nil, nil, nil, nil, int32(1), int64(0), int64(0), pgtype.UUID{}, pgtype.UUID{},
 				itemsJSON,
 			))
 
@@ -791,7 +791,7 @@ func TestOrderService_CancelOrder(t *testing.T) {
 				orders_repo.OrderTypeDineIn, orders_repo.OrderStatusCancelled,
 				pgtype.Timestamptz{Time: now, Valid: true}, pgtype.Timestamptz{Time: now, Valid: true},
 				int64(20000), int64(0), int64(20000), pgtype.UUID{},
-				nil, nil, nil, nil, nil, nil, nil, nil, int32(1), int64(0), int64(0), pgtype.UUID{},
+				nil, nil, nil, nil, nil, nil, nil, nil, int32(1), int64(0), int64(0), pgtype.UUID{}, pgtype.UUID{},
 			))
 
 		// 3. For each item: GetProductByID (from products_repo.New(tx) — 11 cols: id, name, image_url, price, stock, created_at, updated_at, deleted_at, cost_price, options, categories)
@@ -799,10 +799,10 @@ func TestOrderService_CancelOrder(t *testing.T) {
 			WithArgs(pgxmock.AnyArg()).
 			WillReturnRows(pgxmock.NewRows([]string{
 				"id", "name", "image_url", "price", "stock",
-				"created_at", "updated_at", "deleted_at", "cost_price", "options", "categories",
+				"created_at", "updated_at", "deleted_at", "cost_price", "shop_id", "options", "categories",
 			}).AddRow(
 				productID, "Test Product", nil, int64(10000), int32(8),
-				now, now, nil, pgtype.Numeric{Int: big.NewInt(5000), Exp: 0, Valid: true},
+				now, now, nil, pgtype.Numeric{Int: big.NewInt(5000), Exp: 0, Valid: true}, pgtype.UUID{},
 				nil, nil,
 			))
 
@@ -811,10 +811,10 @@ func TestOrderService_CancelOrder(t *testing.T) {
 			WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 			WillReturnRows(pgxmock.NewRows([]string{
 				"id", "name", "image_url", "price", "stock",
-				"created_at", "updated_at", "deleted_at", "cost_price",
+				"created_at", "updated_at", "deleted_at", "cost_price", "shop_id",
 			}).AddRow(
 				productID, "Test Product", nil, int64(10000), int32(10),
-				now, now, nil, pgtype.Numeric{Int: big.NewInt(5000), Exp: 0, Valid: true},
+				now, now, nil, pgtype.Numeric{Int: big.NewInt(5000), Exp: 0, Valid: true}, pgtype.UUID{},
 			))
 
 		// 5. CreateStockHistory
@@ -914,7 +914,7 @@ func TestOrderService_UpdateOrderItems(t *testing.T) {
 			"id", "user_id", "type", "status", "created_at", "updated_at",
 			"gross_total", "discount_amount", "net_total", "applied_promotion_id",
 			"payment_method_id", "payment_gateway_reference", "cash_received", "change_due",
-			"cancellation_reason_id", "cancellation_notes", "payment_url", "payment_token", "version", "tax_amount", "service_charge_amount", "customer_id",
+			"cancellation_reason_id", "cancellation_notes", "payment_url", "payment_token", "version", "tax_amount", "service_charge_amount", "customer_id", "shop_id",
 		}
 		orderWithDetailsColumns := append(append([]string{}, orderColumns...), "items")
 
@@ -935,7 +935,7 @@ func TestOrderService_UpdateOrderItems(t *testing.T) {
 				orders_repo.OrderTypeDineIn, orders_repo.OrderStatusOpen,
 				pgtype.Timestamptz{Time: now, Valid: true}, pgtype.Timestamptz{Time: now, Valid: true},
 				grossTotal, int64(0), netTotal, pgtype.UUID{},
-				nil, nil, nil, nil, nil, nil, nil, nil, int32(1), int64(0), int64(0), pgtype.UUID{},
+				nil, nil, nil, nil, nil, nil, nil, nil, int32(1), int64(0), int64(0), pgtype.UUID{}, pgtype.UUID{},
 			}
 		}
 
@@ -968,10 +968,10 @@ func TestOrderService_UpdateOrderItems(t *testing.T) {
 			WithArgs(pgxmock.AnyArg()).
 			WillReturnRows(pgxmock.NewRows([]string{
 				"id", "name", "image_url", "price", "stock",
-				"created_at", "updated_at", "deleted_at", "cost_price",
+				"created_at", "updated_at", "deleted_at", "cost_price", "shop_id",
 			}).AddRow(
 				productID, "Test Product", nil, int64(10000), int32(10),
-				now, now, nil, pgtype.Numeric{Int: big.NewInt(5000), Exp: 0, Valid: true},
+				now, now, nil, pgtype.Numeric{Int: big.NewInt(5000), Exp: 0, Valid: true}, pgtype.UUID{},
 			))
 
 		// 4. qtyDiff=2 (3-1) > 0 → DecreaseProductStock (products_repo — 9 cols)
@@ -979,10 +979,10 @@ func TestOrderService_UpdateOrderItems(t *testing.T) {
 			WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 			WillReturnRows(pgxmock.NewRows([]string{
 				"id", "name", "image_url", "price", "stock",
-				"created_at", "updated_at", "deleted_at", "cost_price",
+				"created_at", "updated_at", "deleted_at", "cost_price", "shop_id",
 			}).AddRow(
 				productID, "Test Product", nil, int64(10000), int32(8),
-				now, now, nil, pgtype.Numeric{Int: big.NewInt(5000), Exp: 0, Valid: true},
+				now, now, nil, pgtype.Numeric{Int: big.NewInt(5000), Exp: 0, Valid: true}, pgtype.UUID{},
 			))
 
 		// 5. CreateStockHistory
@@ -1116,7 +1116,7 @@ func TestOrderService_ConfirmManualPayment(t *testing.T) {
 			"id", "user_id", "type", "status", "created_at", "updated_at",
 			"gross_total", "discount_amount", "net_total", "applied_promotion_id",
 			"payment_method_id", "payment_gateway_reference", "cash_received", "change_due",
-			"cancellation_reason_id", "cancellation_notes", "payment_url", "payment_token", "version", "tax_amount", "service_charge_amount", "customer_id",
+			"cancellation_reason_id", "cancellation_notes", "payment_url", "payment_token", "version", "tax_amount", "service_charge_amount", "customer_id", "shop_id",
 		}
 		orderWithDetailsColumns := append(append([]string{}, orderColumns...), "items")
 
@@ -1139,7 +1139,7 @@ func TestOrderService_ConfirmManualPayment(t *testing.T) {
 				orders_repo.OrderTypeDineIn, orders_repo.OrderStatusOpen,
 				pgtype.Timestamptz{Time: now, Valid: true}, pgtype.Timestamptz{Time: now, Valid: true},
 				int64(40000), int64(0), int64(40000), pgtype.UUID{},
-				nil, nil, nil, nil, nil, nil, nil, nil, int32(1), int64(0), int64(0), pgtype.UUID{},
+				nil, nil, nil, nil, nil, nil, nil, nil, int32(1), int64(0), int64(0), pgtype.UUID{}, pgtype.UUID{},
 			}
 		}
 
@@ -1149,7 +1149,7 @@ func TestOrderService_ConfirmManualPayment(t *testing.T) {
 				orders_repo.OrderTypeDineIn, orders_repo.OrderStatusPaid,
 				pgtype.Timestamptz{Time: now, Valid: true}, pgtype.Timestamptz{Time: now, Valid: true},
 				int64(40000), int64(0), int64(40000), pgtype.UUID{},
-				&paymentMethodID, nil, &cashReceived, &changeDue, nil, nil, nil, nil, int32(2), int64(0), int64(0), pgtype.UUID{},
+				&paymentMethodID, nil, &cashReceived, &changeDue, nil, nil, nil, nil, int32(2), int64(0), int64(0), pgtype.UUID{}, pgtype.UUID{},
 			}
 		}
 
@@ -1378,7 +1378,7 @@ func TestOrderService_ApplyPromotion(t *testing.T) {
 			"id", "user_id", "type", "status", "created_at", "updated_at",
 			"gross_total", "discount_amount", "net_total", "applied_promotion_id",
 			"payment_method_id", "payment_gateway_reference", "cash_received", "change_due",
-			"cancellation_reason_id", "cancellation_notes", "payment_url", "payment_token", "version", "tax_amount", "service_charge_amount", "customer_id",
+			"cancellation_reason_id", "cancellation_notes", "payment_url", "payment_token", "version", "tax_amount", "service_charge_amount", "customer_id", "shop_id",
 		}
 		orderWithDetailsColumns := append(append([]string{}, orderColumns...), "items")
 
@@ -1391,7 +1391,7 @@ func TestOrderService_ApplyPromotion(t *testing.T) {
 				orders_repo.OrderTypeDineIn, orders_repo.OrderStatusOpen,
 				pgtype.Timestamptz{Time: now, Valid: true}, pgtype.Timestamptz{Time: now, Valid: true},
 				grossTotal, discountAmount, netTotal, pgtype.UUID{},
-				nil, nil, nil, nil, nil, nil, nil, nil, int32(1), int64(0), int64(0), pgtype.UUID{},
+				nil, nil, nil, nil, nil, nil, nil, nil, int32(1), int64(0), int64(0), pgtype.UUID{}, pgtype.UUID{},
 			}
 		}
 
@@ -1425,7 +1425,7 @@ func TestOrderService_ApplyPromotion(t *testing.T) {
 			WillReturnRows(pgxmock.NewRows([]string{
 				"id", "name", "description", "scope", "discount_type",
 				"discount_value", "max_discount_amount", "start_date", "end_date",
-				"is_active", "created_at", "updated_at", "deleted_at",
+				"is_active", "created_at", "updated_at", "deleted_at", "shop_id",
 			}).AddRow(
 				promoID, "10% Off", nil, orders_repo.PromotionScopeORDER, orders_repo.DiscountTypePercentage,
 				pgtype.Numeric{Int: big.NewInt(10), Exp: 0, Valid: true},
@@ -1434,7 +1434,7 @@ func TestOrderService_ApplyPromotion(t *testing.T) {
 				pgtype.Timestamptz{Time: now.Add(24 * time.Hour), Valid: true},
 				true, pgtype.Timestamptz{Time: now, Valid: true},
 				pgtype.Timestamptz{Time: now, Valid: true},
-				pgtype.Timestamptz{},
+				pgtype.Timestamptz{}, pgtype.UUID{},
 			))
 
 		mockPgx.ExpectQuery("SELECT .* FROM promotion_rules WHERE promotion_id").
@@ -1546,7 +1546,7 @@ func TestOrderService_RefundOrder(t *testing.T) {
 			"id", "user_id", "type", "status", "created_at", "updated_at",
 			"gross_total", "discount_amount", "net_total", "applied_promotion_id",
 			"payment_method_id", "payment_gateway_reference", "cash_received", "change_due",
-			"cancellation_reason_id", "cancellation_notes", "payment_url", "payment_token", "version", "tax_amount", "service_charge_amount", "customer_id",
+			"cancellation_reason_id", "cancellation_notes", "payment_url", "payment_token", "version", "tax_amount", "service_charge_amount", "customer_id", "shop_id",
 		}
 		orderWithDetailsColumns := append(append([]string{}, orderColumns...), "items")
 
@@ -1567,7 +1567,7 @@ func TestOrderService_RefundOrder(t *testing.T) {
 				orders_repo.OrderTypeDineIn, orders_repo.OrderStatusInProgress,
 				pgtype.Timestamptz{Time: now, Valid: true}, pgtype.Timestamptz{Time: now, Valid: true},
 				int64(20000), int64(0), int64(20000), pgtype.UUID{},
-				&payMethodID, nil, nil, nil, nil, nil, nil, nil, int32(1), int64(0), int64(0), pgtype.UUID{},
+				&payMethodID, nil, nil, nil, nil, nil, nil, nil, int32(1), int64(0), int64(0), pgtype.UUID{}, pgtype.UUID{},
 			))
 
 		// 2. RefundOrder (SQL query)
@@ -1578,7 +1578,7 @@ func TestOrderService_RefundOrder(t *testing.T) {
 				orders_repo.OrderTypeDineIn, orders_repo.OrderStatusCancelled,
 				pgtype.Timestamptz{Time: now, Valid: true}, pgtype.Timestamptz{Time: now, Valid: true},
 				int64(20000), int64(0), int64(20000), pgtype.UUID{},
-				nil, nil, nil, nil, nil, nil, nil, nil, int32(2), int64(0), int64(0), pgtype.UUID{},
+				nil, nil, nil, nil, nil, nil, nil, nil, int32(2), int64(0), int64(0), pgtype.UUID{}, pgtype.UUID{},
 			))
 
 		// 3. GetOrderItemsByOrderID
@@ -1591,14 +1591,14 @@ func TestOrderService_RefundOrder(t *testing.T) {
 		// 4. GetProductByID (from products repo - returns 11 columns: 9 product fields + options + categories)
 		mockPgx.ExpectQuery("SELECT .* FROM products").
 			WithArgs(pgxmock.AnyArg()).
-			WillReturnRows(pgxmock.NewRows([]string{"id", "name", "image_url", "price", "stock", "created_at", "updated_at", "deleted_at", "cost_price", "options", "categories"}).
-				AddRow(productID, "Test Product", nil, int64(20000), int32(9), now, now, nil, pgtype.Numeric{}, "[]", "[]"))
+			WillReturnRows(pgxmock.NewRows([]string{"id", "name", "image_url", "price", "stock", "created_at", "updated_at", "deleted_at", "cost_price", "shop_id", "options", "categories"}).
+				AddRow(productID, "Test Product", nil, int64(20000), int32(9), now, now, nil, pgtype.Numeric{}, pgtype.UUID{}, "[]", "[]"))
 
 		// 5. AddProductStock (from products repo - returns 9 columns)
 		mockPgx.ExpectQuery("UPDATE products SET stock").
 			WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-			WillReturnRows(pgxmock.NewRows([]string{"id", "name", "image_url", "price", "stock", "created_at", "updated_at", "deleted_at", "cost_price"}).
-				AddRow(productID, "Test Product", nil, int64(20000), int32(10), now, now, nil, pgtype.Numeric{}))
+			WillReturnRows(pgxmock.NewRows([]string{"id", "name", "image_url", "price", "stock", "created_at", "updated_at", "deleted_at", "cost_price", "shop_id"}).
+				AddRow(productID, "Test Product", nil, int64(20000), int32(10), now, now, nil, pgtype.Numeric{}, pgtype.UUID{}))
 
 		// 6. CreateStockHistory
 		mockPgx.ExpectQuery("INSERT INTO stock_history").
@@ -1613,7 +1613,7 @@ func TestOrderService_RefundOrder(t *testing.T) {
 				orders_repo.OrderTypeDineIn, orders_repo.OrderStatusCancelled,
 				pgtype.Timestamptz{Time: now, Valid: true}, pgtype.Timestamptz{Time: now, Valid: true},
 				int64(20000), int64(0), int64(20000), pgtype.UUID{},
-				nil, nil, nil, nil, nil, nil, nil, nil, int32(2), int64(0), int64(0), pgtype.UUID{},
+				nil, nil, nil, nil, nil, nil, nil, nil, int32(2), int64(0), int64(0), pgtype.UUID{}, pgtype.UUID{},
 				nil,
 			))
 
@@ -1637,7 +1637,7 @@ func TestOrderService_RefundOrder(t *testing.T) {
 			"id", "user_id", "type", "status", "created_at", "updated_at",
 			"gross_total", "discount_amount", "net_total", "applied_promotion_id",
 			"payment_method_id", "payment_gateway_reference", "cash_received", "change_due",
-			"cancellation_reason_id", "cancellation_notes", "payment_url", "payment_token", "version", "tax_amount", "service_charge_amount", "customer_id",
+			"cancellation_reason_id", "cancellation_notes", "payment_url", "payment_token", "version", "tax_amount", "service_charge_amount", "customer_id", "shop_id",
 		}
 
 		mockStore.EXPECT().ExecTx(gomock.Any(), gomock.Any()).DoAndReturn(
@@ -1654,7 +1654,7 @@ func TestOrderService_RefundOrder(t *testing.T) {
 				orders_repo.OrderTypeDineIn, orders_repo.OrderStatusOpen,
 				pgtype.Timestamptz{Time: now, Valid: true}, pgtype.Timestamptz{Time: now, Valid: true},
 				int64(20000), int64(0), int64(20000), pgtype.UUID{},
-				nil, nil, nil, nil, nil, nil, nil, nil, int32(1), int64(0), int64(0), pgtype.UUID{},
+				nil, nil, nil, nil, nil, nil, nil, nil, int32(1), int64(0), int64(0), pgtype.UUID{}, pgtype.UUID{},
 			))
 
 		_, err := service.RefundOrder(ctx, orderID, req)

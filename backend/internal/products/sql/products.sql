@@ -1,4 +1,11 @@
 -- Queries for Products
+--
+-- Data isolation: catalog-management queries below are scoped by shop_id using the
+-- lenient pattern `sqlc.narg('shop_id')::uuid IS NULL OR shop_id = sqlc.narg('shop_id')`
+-- (NULL shop arg = single-tenant behaviour; a real shop = isolation). The
+-- order/stock mutation path (GetProductsByIDs, DecreaseProductStock, AddProductStock,
+-- GetProductsForUpdate) and product options remain unscoped for now, as they run
+-- inside the transactional order flow keyed by already-resolved product ids.
 
 -- name: CreateProduct :one
 -- Creates a new product and returns its full details.
@@ -8,21 +15,20 @@ INSERT INTO products (
     image_url,
     price,
     stock,
-    cost_price
+    cost_price,
+    shop_id
 ) VALUES (
-             $1, $2, $3, $4, $5
+             $1, $2, $3, $4, $5, sqlc.narg('shop_id')
          ) RETURNING *;
 
 -- name: GetProductWithOptions :one
 -- Retrieves a single product and aggregates its options into a JSON array.
--- This is an efficient way to fetch a product and its variants in one query.
--- Now filters out soft-deleted options.
 SELECT
     p.*,
     COALESCE(
             (SELECT json_agg(po.*)
              FROM product_options po
-             WHERE po.product_id = p.id AND po.deleted_at IS NULL), -- <-- TAMBAHAN DI SINI
+             WHERE po.product_id = p.id AND po.deleted_at IS NULL),
             '[]'::json
     ) AS options
 FROM
@@ -30,12 +36,12 @@ FROM
 WHERE
     p.id = $1
   AND p.deleted_at IS NULL
+  AND (sqlc.narg('shop_id')::uuid IS NULL OR p.shop_id = sqlc.narg('shop_id'))
 LIMIT 1;
 
 
 -- name: ListProducts :many
 -- Lists products with filtering and pagination.
--- Does not include variants for performance reasons on a list view.
 SELECT
     p.id,
     p.name,
@@ -43,9 +49,9 @@ SELECT
     p.stock,
     p.image_url,
     COALESCE(
-        (SELECT json_agg(c.*) 
-         FROM product_categories pc 
-         JOIN categories c ON pc.category_id = c.id 
+        (SELECT json_agg(c.*)
+         FROM product_categories pc
+         JOIN categories c ON pc.category_id = c.id
          WHERE pc.product_id = p.id),
         '[]'::json
     ) AS categories
@@ -55,6 +61,7 @@ WHERE
     (sqlc.narg(category_id)::int IS NULL OR EXISTS (SELECT 1 FROM product_categories pc WHERE pc.product_id = p.id AND pc.category_id = sqlc.narg(category_id)))
   AND
     (sqlc.narg(search_text)::text IS NULL OR p.name ILIKE '%' || sqlc.narg(search_text) || '%')
+  AND (sqlc.narg('shop_id')::uuid IS NULL OR p.shop_id = sqlc.narg('shop_id'))
   AND p.deleted_at IS NULL
 ORDER BY
     p.name ASC
@@ -71,12 +78,14 @@ SET
     cost_price = COALESCE(sqlc.narg(cost_price), cost_price)
 WHERE
     id = sqlc.arg(id)
+  AND (sqlc.narg('shop_id')::uuid IS NULL OR shop_id = sqlc.narg('shop_id'))
 RETURNING *;
 
 -- name: DeleteProduct :exec
 -- Deletes a product. Its options will be deleted automatically due to 'ON DELETE CASCADE'.
 DELETE FROM products
-WHERE id = $1;
+WHERE id = $1
+  AND (sqlc.narg('shop_id')::uuid IS NULL OR shop_id = sqlc.narg('shop_id'));
 
 -- name: CountProducts :one
 -- Counts total products for pagination, respecting filters.
@@ -85,6 +94,7 @@ WHERE
     (sqlc.narg(category_id)::int IS NULL OR EXISTS (SELECT 1 FROM product_categories pc WHERE pc.product_id = p.id AND pc.category_id = sqlc.narg(category_id)))
   AND
     (sqlc.narg(search_text)::text IS NULL OR p.name ILIKE '%' || sqlc.narg(search_text) || '%')
+  AND (sqlc.narg('shop_id')::uuid IS NULL OR p.shop_id = sqlc.narg('shop_id'))
   AND p.deleted_at IS NULL;
 
 
@@ -123,7 +133,8 @@ WHERE id = $1 AND deleted_at IS NULL;
 -- name: SoftDeleteProduct :exec
 UPDATE products
 SET deleted_at = NOW()
-WHERE id = $1 AND deleted_at IS NULL;
+WHERE id = $1 AND deleted_at IS NULL
+  AND (sqlc.narg('shop_id')::uuid IS NULL OR shop_id = sqlc.narg('shop_id'));
 
 -- name: ListOptionsForProduct :many
 -- Retrieves all options for a single product.
@@ -151,8 +162,8 @@ FROM
     products p ON po.product_id = p.id
 WHERE
     po.id = $1
-  AND po.deleted_at IS NULL -- <-- TAMBAHAN DI SINI
-  AND p.deleted_at IS NULL -- <-- TAMBAHAN DI SINI
+  AND po.deleted_at IS NULL
+  AND p.deleted_at IS NULL
 ORDER BY
     po.name ASC
 LIMIT 1;
@@ -165,13 +176,13 @@ SELECT
     COALESCE(
             (SELECT json_agg(po.*)
              FROM product_options po
-             WHERE po.product_id = p.id AND po.deleted_at IS NULL), 
+             WHERE po.product_id = p.id AND po.deleted_at IS NULL),
             '[]'::json
     ) AS options,
     COALESCE(
-        (SELECT json_agg(c.*) 
-         FROM product_categories pc 
-         JOIN categories c ON pc.category_id = c.id 
+        (SELECT json_agg(c.*)
+         FROM product_categories pc
+         JOIN categories c ON pc.category_id = c.id
          WHERE pc.product_id = p.id),
         '[]'::json
     ) AS categories
@@ -190,9 +201,9 @@ SELECT
     p.stock,
     p.image_url,
     COALESCE(
-        (SELECT json_agg(c.*) 
-         FROM product_categories pc 
-         JOIN categories c ON pc.category_id = c.id 
+        (SELECT json_agg(c.*)
+         FROM product_categories pc
+         JOIN categories c ON pc.category_id = c.id
          WHERE pc.product_id = p.id),
         '[]'::json
     ) AS categories,
@@ -203,6 +214,7 @@ WHERE
     (sqlc.narg(category_id)::int IS NULL OR EXISTS (SELECT 1 FROM product_categories pc WHERE pc.product_id = p.id AND pc.category_id = sqlc.narg(category_id)))
   AND
     (sqlc.narg(search_text)::text IS NULL OR p.name ILIKE '%' || sqlc.narg(search_text) || '%')
+  AND (sqlc.narg('shop_id')::uuid IS NULL OR p.shop_id = sqlc.narg('shop_id'))
   AND p.deleted_at IS NOT NULL
 ORDER BY
     p.deleted_at DESC
@@ -214,6 +226,7 @@ WHERE
     (sqlc.narg(category_id)::int IS NULL OR EXISTS (SELECT 1 FROM product_categories pc WHERE pc.product_id = p.id AND pc.category_id = sqlc.narg(category_id)))
   AND
     (sqlc.narg(search_text)::text IS NULL OR p.name ILIKE '%' || sqlc.narg(search_text) || '%')
+  AND (sqlc.narg('shop_id')::uuid IS NULL OR p.shop_id = sqlc.narg('shop_id'))
   AND p.deleted_at IS NOT NULL;
 
 -- name: AssignProductCategory :exec
@@ -228,7 +241,7 @@ SELECT
     COALESCE(
             (SELECT json_agg(po.*)
              FROM product_options po
-             WHERE po.product_id = p.id), -- Include all options (even deleted ones optionally, but usually strictly matching parent state or just all)
+             WHERE po.product_id = p.id),
             '[]'::json
     ) AS options
 FROM
@@ -236,17 +249,20 @@ FROM
 WHERE
     p.id = $1
   AND p.deleted_at IS NOT NULL
+  AND (sqlc.narg('shop_id')::uuid IS NULL OR p.shop_id = sqlc.narg('shop_id'))
 LIMIT 1;
 
 -- name: RestoreProduct :exec
 UPDATE products
 SET deleted_at = NULL
-WHERE id = $1;
+WHERE id = $1
+  AND (sqlc.narg('shop_id')::uuid IS NULL OR shop_id = sqlc.narg('shop_id'));
 
 -- name: RestoreProductsBulk :exec
 UPDATE products
 SET deleted_at = NULL
-WHERE id = ANY($1::uuid[]);
+WHERE id = ANY($1::uuid[])
+  AND (sqlc.narg('shop_id')::uuid IS NULL OR shop_id = sqlc.narg('shop_id'));
 
 -- name: CheckCategoryExists :one
 SELECT EXISTS(SELECT 1 FROM categories WHERE id = $1);

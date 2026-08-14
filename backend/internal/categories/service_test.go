@@ -38,7 +38,7 @@ func TestCtgService_GetAllCategories(t *testing.T) {
 			{ID: 2, Name: "Drink", CreatedAt: pgtype.Timestamptz{Time: now, Valid: true}, UpdatedAt: pgtype.Timestamptz{Time: now, Valid: true}},
 		}
 
-		mockRepo.EXPECT().ListCategories(ctx, categories_repo.ListCategoriesParams{Limit: 10, Offset: 0}).Return(repoCategories, nil)
+		mockRepo.EXPECT().ListCategories(ctx, categories_repo.ListCategoriesParams{Limit: 10, Offset: 0, ShopID: pgtype.UUID{}}).Return(repoCategories, nil)
 
 		resp, err := service.GetAllCategories(ctx, categories.ListCategoryRequest{})
 
@@ -83,7 +83,7 @@ func TestCtgService_CreateCategory(t *testing.T) {
 			UpdatedAt: pgtype.Timestamptz{Time: now, Valid: true},
 		}
 
-		mockRepo.EXPECT().CreateCategory(ctx, req.Name).Return(repoCategory, nil)
+		mockRepo.EXPECT().CreateCategory(ctx, categories_repo.CreateCategoryParams{Name: req.Name}).Return(repoCategory, nil)
 		mockActivity.EXPECT().Log(ctx, userID, activitylog_repo.LogActionTypeCREATE, activitylog_repo.LogEntityTypeCATEGORY, "1", gomock.Any())
 
 		resp, err := service.CreateCategory(ctx, req)
@@ -107,7 +107,7 @@ func TestCtgService_CreateCategory(t *testing.T) {
 		req := categories.CreateCategoryRequest{Name: "No Actor"}
 		repoCategory := categories_repo.Category{ID: 2, Name: req.Name}
 
-		mockRepo.EXPECT().CreateCategory(ctxNoActor, req.Name).Return(repoCategory, nil)
+		mockRepo.EXPECT().CreateCategory(ctxNoActor, categories_repo.CreateCategoryParams{Name: req.Name}).Return(repoCategory, nil)
 		mockLogger.EXPECT().Warnf(gomock.Any()).Times(1)
 		mockActivity.EXPECT().Log(ctxNoActor, uuid.Nil, activitylog_repo.LogActionTypeCREATE, activitylog_repo.LogEntityTypeCATEGORY, "2", gomock.Any())
 
@@ -125,7 +125,7 @@ func TestCtgService_GetCategoryByID(t *testing.T) {
 
 	t.Run("Success", func(t *testing.T) {
 		repoCategory := categories_repo.Category{ID: 1, Name: "Found", CreatedAt: pgtype.Timestamptz{Time: now, Valid: true}, UpdatedAt: pgtype.Timestamptz{Time: now, Valid: true}}
-		mockRepo.EXPECT().GetCategory(ctx, int32(1)).Return(repoCategory, nil)
+		mockRepo.EXPECT().GetCategory(ctx, categories_repo.GetCategoryParams{ID: 1}).Return(repoCategory, nil)
 
 		resp, err := service.GetCategoryByID(ctx, 1)
 
@@ -134,7 +134,7 @@ func TestCtgService_GetCategoryByID(t *testing.T) {
 	})
 
 	t.Run("NotFound", func(t *testing.T) {
-		mockRepo.EXPECT().GetCategory(ctx, int32(1)).Return(categories_repo.Category{}, pgx.ErrNoRows)
+		mockRepo.EXPECT().GetCategory(ctx, categories_repo.GetCategoryParams{ID: 1}).Return(categories_repo.Category{}, pgx.ErrNoRows)
 		mockLogger.EXPECT().Warnf(gomock.Any(), gomock.Any()).Times(1)
 
 		resp, err := service.GetCategoryByID(ctx, 1)
@@ -144,7 +144,7 @@ func TestCtgService_GetCategoryByID(t *testing.T) {
 	})
 
 	t.Run("InternalError", func(t *testing.T) {
-		mockRepo.EXPECT().GetCategory(ctx, int32(1)).Return(categories_repo.Category{}, errors.New("db error"))
+		mockRepo.EXPECT().GetCategory(ctx, categories_repo.GetCategoryParams{ID: 1}).Return(categories_repo.Category{}, errors.New("db error"))
 		mockLogger.EXPECT().Errorf(gomock.Any(), gomock.Any()).Times(1)
 
 		resp, err := service.GetCategoryByID(ctx, 1)
@@ -201,9 +201,9 @@ func TestCtgService_DeleteCategory(t *testing.T) {
 	ctx := context.WithValue(context.Background(), common.UserIDKey, userID)
 
 	t.Run("Success", func(t *testing.T) {
-		mockRepo.EXPECT().ExistsCategory(ctx, int32(1)).Return(true, nil)
+		mockRepo.EXPECT().ExistsCategory(ctx, categories_repo.ExistsCategoryParams{ID: 1}).Return(true, nil)
 		mockRepo.EXPECT().CountProductsInCategory(ctx, gomock.Any()).Return(int64(0), nil)
-		mockRepo.EXPECT().DeleteCategory(ctx, int32(1)).Return(nil)
+		mockRepo.EXPECT().DeleteCategory(ctx, categories_repo.DeleteCategoryParams{ID: 1}).Return(nil)
 		mockActivity.EXPECT().Log(ctx, userID, activitylog_repo.LogActionTypeDELETE, activitylog_repo.LogEntityTypeCATEGORY, "1", gomock.Any())
 
 		err := service.DeleteCategory(ctx, 1)
@@ -212,7 +212,7 @@ func TestCtgService_DeleteCategory(t *testing.T) {
 	})
 
 	t.Run("ExistsCheckError", func(t *testing.T) {
-		mockRepo.EXPECT().ExistsCategory(ctx, int32(1)).Return(false, errors.New("db error"))
+		mockRepo.EXPECT().ExistsCategory(ctx, categories_repo.ExistsCategoryParams{ID: 1}).Return(false, errors.New("db error"))
 		mockLogger.EXPECT().Errorf(gomock.Any(), gomock.Any(), gomock.Any()).Times(1)
 
 		err := service.DeleteCategory(ctx, 1)
@@ -221,7 +221,7 @@ func TestCtgService_DeleteCategory(t *testing.T) {
 	})
 
 	t.Run("NotFound", func(t *testing.T) {
-		mockRepo.EXPECT().ExistsCategory(ctx, int32(1)).Return(false, nil)
+		mockRepo.EXPECT().ExistsCategory(ctx, categories_repo.ExistsCategoryParams{ID: 1}).Return(false, nil)
 		mockLogger.EXPECT().Warnf(gomock.Any(), gomock.Any()).Times(1)
 
 		err := service.DeleteCategory(ctx, 1)
@@ -230,7 +230,7 @@ func TestCtgService_DeleteCategory(t *testing.T) {
 	})
 
 	t.Run("CountProductsError", func(t *testing.T) {
-		mockRepo.EXPECT().ExistsCategory(ctx, int32(1)).Return(true, nil)
+		mockRepo.EXPECT().ExistsCategory(ctx, categories_repo.ExistsCategoryParams{ID: 1}).Return(true, nil)
 		mockRepo.EXPECT().CountProductsInCategory(ctx, gomock.Any()).Return(int64(0), errors.New("db error"))
 		mockLogger.EXPECT().Errorf(gomock.Any(), gomock.Any(), gomock.Any()).Times(1)
 
@@ -240,7 +240,7 @@ func TestCtgService_DeleteCategory(t *testing.T) {
 	})
 
 	t.Run("InUse", func(t *testing.T) {
-		mockRepo.EXPECT().ExistsCategory(ctx, int32(1)).Return(true, nil)
+		mockRepo.EXPECT().ExistsCategory(ctx, categories_repo.ExistsCategoryParams{ID: 1}).Return(true, nil)
 		mockRepo.EXPECT().CountProductsInCategory(ctx, gomock.Any()).Return(int64(5), nil)
 		mockLogger.EXPECT().Warnf(gomock.Any(), gomock.Any(), gomock.Any()).Times(1)
 
@@ -250,9 +250,9 @@ func TestCtgService_DeleteCategory(t *testing.T) {
 	})
 
 	t.Run("DeleteErrorNotFound", func(t *testing.T) {
-		mockRepo.EXPECT().ExistsCategory(ctx, int32(1)).Return(true, nil)
+		mockRepo.EXPECT().ExistsCategory(ctx, categories_repo.ExistsCategoryParams{ID: 1}).Return(true, nil)
 		mockRepo.EXPECT().CountProductsInCategory(ctx, gomock.Any()).Return(int64(0), nil)
-		mockRepo.EXPECT().DeleteCategory(ctx, int32(1)).Return(pgx.ErrNoRows)
+		mockRepo.EXPECT().DeleteCategory(ctx, categories_repo.DeleteCategoryParams{ID: 1}).Return(pgx.ErrNoRows)
 		mockLogger.EXPECT().Warnf(gomock.Any(), gomock.Any()).Times(1)
 
 		err := service.DeleteCategory(ctx, 1)
@@ -261,9 +261,9 @@ func TestCtgService_DeleteCategory(t *testing.T) {
 	})
 
 	t.Run("DeleteErrorInternal", func(t *testing.T) {
-		mockRepo.EXPECT().ExistsCategory(ctx, int32(1)).Return(true, nil)
+		mockRepo.EXPECT().ExistsCategory(ctx, categories_repo.ExistsCategoryParams{ID: 1}).Return(true, nil)
 		mockRepo.EXPECT().CountProductsInCategory(ctx, gomock.Any()).Return(int64(0), nil)
-		mockRepo.EXPECT().DeleteCategory(ctx, int32(1)).Return(errors.New("db error"))
+		mockRepo.EXPECT().DeleteCategory(ctx, categories_repo.DeleteCategoryParams{ID: 1}).Return(errors.New("db error"))
 		mockLogger.EXPECT().Errorf(gomock.Any(), gomock.Any(), gomock.Any()).Times(1)
 
 		err := service.DeleteCategory(ctx, 1)
@@ -273,9 +273,9 @@ func TestCtgService_DeleteCategory(t *testing.T) {
 
 	t.Run("DeleteMissingActor", func(t *testing.T) {
 		ctxNoActor := context.Background()
-		mockRepo.EXPECT().ExistsCategory(ctxNoActor, int32(1)).Return(true, nil)
+		mockRepo.EXPECT().ExistsCategory(ctxNoActor, categories_repo.ExistsCategoryParams{ID: 1}).Return(true, nil)
 		mockRepo.EXPECT().CountProductsInCategory(ctxNoActor, gomock.Any()).Return(int64(0), nil)
-		mockRepo.EXPECT().DeleteCategory(ctxNoActor, int32(1)).Return(nil)
+		mockRepo.EXPECT().DeleteCategory(ctxNoActor, categories_repo.DeleteCategoryParams{ID: 1}).Return(nil)
 		mockLogger.EXPECT().Warnf(gomock.Any()).Times(1)
 		mockActivity.EXPECT().Log(ctxNoActor, uuid.Nil, activitylog_repo.LogActionTypeDELETE, activitylog_repo.LogEntityTypeCATEGORY, "1", gomock.Any())
 

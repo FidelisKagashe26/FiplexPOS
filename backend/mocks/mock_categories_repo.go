@@ -14,6 +14,7 @@ import (
 	context "context"
 	reflect "reflect"
 
+	pgtype "github.com/jackc/pgx/v5/pgtype"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -42,18 +43,18 @@ func (m *MockCategoriesRepository) EXPECT() *MockCategoriesRepositoryMockRecorde
 }
 
 // CountCategories mocks base method.
-func (m *MockCategoriesRepository) CountCategories(ctx context.Context) (int64, error) {
+func (m *MockCategoriesRepository) CountCategories(ctx context.Context, shopID pgtype.UUID) (int64, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CountCategories", ctx)
+	ret := m.ctrl.Call(m, "CountCategories", ctx, shopID)
 	ret0, _ := ret[0].(int64)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CountCategories indicates an expected call of CountCategories.
-func (mr *MockCategoriesRepositoryMockRecorder) CountCategories(ctx any) *gomock.Call {
+func (mr *MockCategoriesRepositoryMockRecorder) CountCategories(ctx, shopID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountCategories", reflect.TypeOf((*MockCategoriesRepository)(nil).CountCategories), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountCategories", reflect.TypeOf((*MockCategoriesRepository)(nil).CountCategories), ctx, shopID)
 }
 
 // CountProductsInCategory mocks base method.
@@ -72,62 +73,62 @@ func (mr *MockCategoriesRepositoryMockRecorder) CountProductsInCategory(ctx, cat
 }
 
 // CreateCategory mocks base method.
-func (m *MockCategoriesRepository) CreateCategory(ctx context.Context, name string) (repository.Category, error) {
+func (m *MockCategoriesRepository) CreateCategory(ctx context.Context, arg repository.CreateCategoryParams) (repository.Category, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateCategory", ctx, name)
+	ret := m.ctrl.Call(m, "CreateCategory", ctx, arg)
 	ret0, _ := ret[0].(repository.Category)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CreateCategory indicates an expected call of CreateCategory.
-func (mr *MockCategoriesRepositoryMockRecorder) CreateCategory(ctx, name any) *gomock.Call {
+func (mr *MockCategoriesRepositoryMockRecorder) CreateCategory(ctx, arg any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCategory", reflect.TypeOf((*MockCategoriesRepository)(nil).CreateCategory), ctx, name)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCategory", reflect.TypeOf((*MockCategoriesRepository)(nil).CreateCategory), ctx, arg)
 }
 
 // DeleteCategory mocks base method.
-func (m *MockCategoriesRepository) DeleteCategory(ctx context.Context, id int32) error {
+func (m *MockCategoriesRepository) DeleteCategory(ctx context.Context, arg repository.DeleteCategoryParams) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteCategory", ctx, id)
+	ret := m.ctrl.Call(m, "DeleteCategory", ctx, arg)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // DeleteCategory indicates an expected call of DeleteCategory.
-func (mr *MockCategoriesRepositoryMockRecorder) DeleteCategory(ctx, id any) *gomock.Call {
+func (mr *MockCategoriesRepositoryMockRecorder) DeleteCategory(ctx, arg any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteCategory", reflect.TypeOf((*MockCategoriesRepository)(nil).DeleteCategory), ctx, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteCategory", reflect.TypeOf((*MockCategoriesRepository)(nil).DeleteCategory), ctx, arg)
 }
 
 // ExistsCategory mocks base method.
-func (m *MockCategoriesRepository) ExistsCategory(ctx context.Context, id int32) (bool, error) {
+func (m *MockCategoriesRepository) ExistsCategory(ctx context.Context, arg repository.ExistsCategoryParams) (bool, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ExistsCategory", ctx, id)
+	ret := m.ctrl.Call(m, "ExistsCategory", ctx, arg)
 	ret0, _ := ret[0].(bool)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ExistsCategory indicates an expected call of ExistsCategory.
-func (mr *MockCategoriesRepositoryMockRecorder) ExistsCategory(ctx, id any) *gomock.Call {
+func (mr *MockCategoriesRepositoryMockRecorder) ExistsCategory(ctx, arg any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExistsCategory", reflect.TypeOf((*MockCategoriesRepository)(nil).ExistsCategory), ctx, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExistsCategory", reflect.TypeOf((*MockCategoriesRepository)(nil).ExistsCategory), ctx, arg)
 }
 
 // GetCategory mocks base method.
-func (m *MockCategoriesRepository) GetCategory(ctx context.Context, id int32) (repository.Category, error) {
+func (m *MockCategoriesRepository) GetCategory(ctx context.Context, arg repository.GetCategoryParams) (repository.Category, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetCategory", ctx, id)
+	ret := m.ctrl.Call(m, "GetCategory", ctx, arg)
 	ret0, _ := ret[0].(repository.Category)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetCategory indicates an expected call of GetCategory.
-func (mr *MockCategoriesRepositoryMockRecorder) GetCategory(ctx, id any) *gomock.Call {
+func (mr *MockCategoriesRepositoryMockRecorder) GetCategory(ctx, arg any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCategory", reflect.TypeOf((*MockCategoriesRepository)(nil).GetCategory), ctx, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCategory", reflect.TypeOf((*MockCategoriesRepository)(nil).GetCategory), ctx, arg)
 }
 
 // ListCategories mocks base method.

@@ -16,7 +16,9 @@ import { Route as LocaleDashboardRouteImport } from './routes/$locale/_dashboard
 import { Route as LocaleDashboardIndexRouteImport } from './routes/$locale/_dashboard.index'
 import { Route as LocaleDashboardUsersRouteImport } from './routes/$locale/_dashboard.users'
 import { Route as LocaleDashboardTransactionsRouteImport } from './routes/$locale/_dashboard.transactions'
+import { Route as LocaleDashboardShopsRouteImport } from './routes/$locale/_dashboard.shops'
 import { Route as LocaleDashboardSettingsRouteImport } from './routes/$locale/_dashboard.settings'
+import { Route as LocaleDashboardRolesRouteImport } from './routes/$locale/_dashboard.roles'
 import { Route as LocaleDashboardReportsRouteImport } from './routes/$locale/_dashboard.reports'
 import { Route as LocaleDashboardPromotionsRouteImport } from './routes/$locale/_dashboard.promotions'
 import { Route as LocaleDashboardProductRouteImport } from './routes/$locale/_dashboard.product'
@@ -60,9 +62,19 @@ const LocaleDashboardTransactionsRoute =
     path: '/transactions',
     getParentRoute: () => LocaleDashboardRoute,
   } as any)
+const LocaleDashboardShopsRoute = LocaleDashboardShopsRouteImport.update({
+  id: '/shops',
+  path: '/shops',
+  getParentRoute: () => LocaleDashboardRoute,
+} as any)
 const LocaleDashboardSettingsRoute = LocaleDashboardSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => LocaleDashboardRoute,
+} as any)
+const LocaleDashboardRolesRoute = LocaleDashboardRolesRouteImport.update({
+  id: '/roles',
+  path: '/roles',
   getParentRoute: () => LocaleDashboardRoute,
 } as any)
 const LocaleDashboardReportsRoute = LocaleDashboardReportsRouteImport.update({
@@ -115,7 +127,9 @@ export interface FileRoutesByFullPath {
   '/$locale/product': typeof LocaleDashboardProductRoute
   '/$locale/promotions': typeof LocaleDashboardPromotionsRoute
   '/$locale/reports': typeof LocaleDashboardReportsRoute
+  '/$locale/roles': typeof LocaleDashboardRolesRoute
   '/$locale/settings': typeof LocaleDashboardSettingsRoute
+  '/$locale/shops': typeof LocaleDashboardShopsRoute
   '/$locale/transactions': typeof LocaleDashboardTransactionsRoute
   '/$locale/users': typeof LocaleDashboardUsersRoute
   '/$locale/': typeof LocaleDashboardIndexRoute
@@ -131,7 +145,9 @@ export interface FileRoutesByTo {
   '/$locale/product': typeof LocaleDashboardProductRoute
   '/$locale/promotions': typeof LocaleDashboardPromotionsRoute
   '/$locale/reports': typeof LocaleDashboardReportsRoute
+  '/$locale/roles': typeof LocaleDashboardRolesRoute
   '/$locale/settings': typeof LocaleDashboardSettingsRoute
+  '/$locale/shops': typeof LocaleDashboardShopsRoute
   '/$locale/transactions': typeof LocaleDashboardTransactionsRoute
   '/$locale/users': typeof LocaleDashboardUsersRoute
 }
@@ -148,7 +164,9 @@ export interface FileRoutesById {
   '/$locale/_dashboard/product': typeof LocaleDashboardProductRoute
   '/$locale/_dashboard/promotions': typeof LocaleDashboardPromotionsRoute
   '/$locale/_dashboard/reports': typeof LocaleDashboardReportsRoute
+  '/$locale/_dashboard/roles': typeof LocaleDashboardRolesRoute
   '/$locale/_dashboard/settings': typeof LocaleDashboardSettingsRoute
+  '/$locale/_dashboard/shops': typeof LocaleDashboardShopsRoute
   '/$locale/_dashboard/transactions': typeof LocaleDashboardTransactionsRoute
   '/$locale/_dashboard/users': typeof LocaleDashboardUsersRoute
   '/$locale/_dashboard/': typeof LocaleDashboardIndexRoute
@@ -166,7 +184,9 @@ export interface FileRouteTypes {
     | '/$locale/product'
     | '/$locale/promotions'
     | '/$locale/reports'
+    | '/$locale/roles'
     | '/$locale/settings'
+    | '/$locale/shops'
     | '/$locale/transactions'
     | '/$locale/users'
     | '/$locale/'
@@ -182,7 +202,9 @@ export interface FileRouteTypes {
     | '/$locale/product'
     | '/$locale/promotions'
     | '/$locale/reports'
+    | '/$locale/roles'
     | '/$locale/settings'
+    | '/$locale/shops'
     | '/$locale/transactions'
     | '/$locale/users'
   id:
@@ -198,7 +220,9 @@ export interface FileRouteTypes {
     | '/$locale/_dashboard/product'
     | '/$locale/_dashboard/promotions'
     | '/$locale/_dashboard/reports'
+    | '/$locale/_dashboard/roles'
     | '/$locale/_dashboard/settings'
+    | '/$locale/_dashboard/shops'
     | '/$locale/_dashboard/transactions'
     | '/$locale/_dashboard/users'
     | '/$locale/_dashboard/'
@@ -260,11 +284,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LocaleDashboardTransactionsRouteImport
       parentRoute: typeof LocaleDashboardRoute
     }
+    '/$locale/_dashboard/shops': {
+      id: '/$locale/_dashboard/shops'
+      path: '/shops'
+      fullPath: '/$locale/shops'
+      preLoaderRoute: typeof LocaleDashboardShopsRouteImport
+      parentRoute: typeof LocaleDashboardRoute
+    }
     '/$locale/_dashboard/settings': {
       id: '/$locale/_dashboard/settings'
       path: '/settings'
       fullPath: '/$locale/settings'
       preLoaderRoute: typeof LocaleDashboardSettingsRouteImport
+      parentRoute: typeof LocaleDashboardRoute
+    }
+    '/$locale/_dashboard/roles': {
+      id: '/$locale/_dashboard/roles'
+      path: '/roles'
+      fullPath: '/$locale/roles'
+      preLoaderRoute: typeof LocaleDashboardRolesRouteImport
       parentRoute: typeof LocaleDashboardRoute
     }
     '/$locale/_dashboard/reports': {
@@ -327,7 +365,9 @@ interface LocaleDashboardRouteChildren {
   LocaleDashboardProductRoute: typeof LocaleDashboardProductRoute
   LocaleDashboardPromotionsRoute: typeof LocaleDashboardPromotionsRoute
   LocaleDashboardReportsRoute: typeof LocaleDashboardReportsRoute
+  LocaleDashboardRolesRoute: typeof LocaleDashboardRolesRoute
   LocaleDashboardSettingsRoute: typeof LocaleDashboardSettingsRoute
+  LocaleDashboardShopsRoute: typeof LocaleDashboardShopsRoute
   LocaleDashboardTransactionsRoute: typeof LocaleDashboardTransactionsRoute
   LocaleDashboardUsersRoute: typeof LocaleDashboardUsersRoute
   LocaleDashboardIndexRoute: typeof LocaleDashboardIndexRoute
@@ -341,7 +381,9 @@ const LocaleDashboardRouteChildren: LocaleDashboardRouteChildren = {
   LocaleDashboardProductRoute: LocaleDashboardProductRoute,
   LocaleDashboardPromotionsRoute: LocaleDashboardPromotionsRoute,
   LocaleDashboardReportsRoute: LocaleDashboardReportsRoute,
+  LocaleDashboardRolesRoute: LocaleDashboardRolesRoute,
   LocaleDashboardSettingsRoute: LocaleDashboardSettingsRoute,
+  LocaleDashboardShopsRoute: LocaleDashboardShopsRoute,
   LocaleDashboardTransactionsRoute: LocaleDashboardTransactionsRoute,
   LocaleDashboardUsersRoute: LocaleDashboardUsersRoute,
   LocaleDashboardIndexRoute: LocaleDashboardIndexRoute,
