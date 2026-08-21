@@ -16,9 +16,9 @@ const (
 	LocalShopID  = "shop_id"
 	HeaderShopID = "X-Shop-Id"
 
-	// roleAdmin is the coarse "owner" tier that bypasses fine-grained checks,
-	// mirroring SMAS's privileged account_type.
-	roleAdmin = "admin"
+	// Only the platform role bypasses tenant permissions. An admin is the owner.
+	// Shop owners must remain inside their shop's permission boundary.
+	roleSuperAdmin = "superadmin"
 )
 
 func userIDFromCtx(c fiber.Ctx) (uuid.UUID, bool) {
@@ -44,7 +44,7 @@ func roleString(c fiber.Ctx) string {
 }
 
 func isPrivileged(c fiber.Ctx) bool {
-	return roleString(c) == roleAdmin
+	return roleString(c) == roleSuperAdmin
 }
 
 // stashShop makes the resolved shop available both to Fiber Locals and to the

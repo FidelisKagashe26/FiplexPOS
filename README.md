@@ -15,7 +15,8 @@ Built as a **single-port deployment** — the Go backend (`backend/`) serves bot
 
 | Category | Feature |
 |----------|---------|
-| **Auth & Access** | JWT authentication, RBAC (Admin / Manager / Cashier), session management |
+| **Auth & Access** | JWT authentication, backend-enforced RBAC with dynamic roles & granular permissions, session management |
+| **Multi-tenancy** | Per-shop data isolation via `X-Shop-Id`; shops, roles & permission assignment managed in-app |
 | **Inventory** | Products, categories, variants/options, stock history, image uploads, soft-delete & restore |
 | **Orders** | Cart system, order workflow, operational status tracking, item updates |
 | **Payments** | Manual cash/payment methods, Midtrans Payment Gateway (QRIS dynamic/static) |
@@ -122,57 +123,119 @@ docker compose up -d
 
 Env lainnya sudah memiliki default yang aman. Lihat [`.env.example`](.env.example) untuk daftar lengkap.
 
-## 🛠️ Development Setup
+## 🛠️ Running Locally (Development)
+
+This runs the **backend and the frontend dev server as two separate processes**. The
+frontend dev server (`:5200`) proxies `/api`, `/swagger`, and `/healthz` to the backend
+on **`:8700`** (see [`frontend/vite.config.ts`](frontend/vite.config.ts)), so the backend
+must listen on port `8700` in this mode.
+
+### ▶️ TL;DR — start both services
+
+Run each block in its own terminal (first-time setup: do steps 1–2 below once first).
+
+```bash
+# 1) Backend  →  http://localhost:8700
+cd backend
+go run ./cmd/app
+
+# 2) Frontend →  http://127.0.0.1:5200   (proxies the API to :8700)
+cd frontend
+bun run dev
+```
+
+**Log in** (login is by **email**) with a seeded demo account — run `make seed` in `backend/` once if you haven't:
+
+| Username | Email (used to log in) | Password | Role |
+|----------|------------------------|----------|------|
+| `admin` | `admin@example.com` | `passwordrahasia` | admin (full access) |
+| `manager` | `manager@example.com` | `passwordrahasia` | manager |
+| `cashier` | `cashier@example.com` | `passwordrahasia` | cashier |
+
+> These are **local demo credentials only** (public password, sample data). They exist only
+> after `make seed`. Production uses its own admin created directly in the database — never
+> commit live credentials to this repo.
+
+Step-by-step details follow.
 
 ### Prerequisites
 
 - **Go** 1.25+
 - **Bun** (or Node.js 22+)
-- **PostgreSQL** 15+
-- **Redis**
-- **Docker** & Docker Compose (untuk infra)
+- **Docker** & Docker Compose — used to run PostgreSQL, Redis, and MinIO locally
 
-### 1. Setup Infrastructure
+Optional Go tools (only if you edit SQL or DTOs — install once with `go install`):
+
+```bash
+go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest          # regenerate DB code (make sqlc-generate)
+go install go.uber.org/mock/mockgen@latest                    # regenerate test mocks
+go install github.com/air-verse/air@latest                    # backend hot-reload (optional)
+go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest  # only if you run `make migrate-*` manually
+```
+
+### 1. Start infrastructure (Postgres + Redis + MinIO)
 
 ```bash
 cd backend
-
-# Jalankan PostgreSQL + MinIO + Redis via Docker
-docker compose -f docker-compose.infra.yml up -d
-
-# Atau menggunakan Makefile
-make dev-infra
+make dev-infra        # or: docker compose -f docker-compose.infra.yml up -d
 ```
 
-### 2. Setup Environment
+### 2. Configure the backend environment
 
 ```bash
 cd backend
 cp .env.example .env
-# Edit .env:
-#   DB_HOST=localhost
-#   DB_PASSWORD=<password dari docker-compose-infra>
-#   JWT_SECRET=<generate dengan: openssl rand -hex 32>
 ```
 
-### 3. Run Backend
+Edit `.env` and set at least:
+
+| Variable | Local value |
+|----------|-------------|
+| `APP_PORT` | `8700` — must match the frontend dev proxy target |
+| `DB_HOST` | `localhost` |
+| `DB_PASSWORD` | the password from `docker-compose.infra.yml` |
+| `JWT_SECRET` | generate with `openssl rand -hex 32` |
+| `AUTO_MIGRATE` | `true` — runs DB migrations automatically on startup |
+
+### 3. Run the backend
 
 ```bash
 cd backend
-
-# Install air untuk hot-reload (opsional)
-go install github.com/air-verse/air@latest
-
-# Run dengan hot-reload
-air
-
-# Atau tanpa hot-reload
-go run ./cmd/app
+go run ./cmd/app       # or: air   (hot-reload)
 ```
 
-Backend berjalan di `http://localhost:8080`
+The backend now listens on `http://localhost:8700`. With `AUTO_MIGRATE=true` the schema
+(including the multi-tenancy/RBAC tables) is created on first boot, and the permission
+catalog is seeded automatically.
 
-### 4. Run Frontend (Dev Mode)
+### 4. Seed demo data & first login (local only)
+
+There is no public sign-up endpoint — the first user must be seeded:
+
+```bash
+cd backend
+make seed
+```
+
+This creates demo accounts you can log in with (login is by **email**):
+
+| Email | Password | Role |
+|-------|----------|------|
+| `admin@example.com` | `passwordrahasia` | admin |
+| `manager@example.com` | `passwordrahasia` | manager |
+| `cashier@example.com` | `passwordrahasia` | cashier |
+
+> ⚠️ **Demo credentials only.** `make seed` also inserts sample products/orders and uses a
+> publicly-known password — never run it against production. On a real deployment, create the
+> first admin directly in the database and set a strong password.
+
+The `admin` role is the owner tier and bypasses fine-grained permission checks. Manager/cashier
+(and any custom roles) are governed by the permissions assigned to their role under
+**Roles & Permissions** in the UI. To exercise per-shop data isolation, create a shop under
+**Shops**, choose **Set as Active Shop** (this sends the `X-Shop-Id` header), and assign users
+to that shop.
+
+### 5. Run the frontend dev server
 
 ```bash
 cd frontend
@@ -180,17 +243,22 @@ bun install
 bun run dev
 ```
 
-Frontend dev server di `http://localhost:5173` (dengan proxy ke backend 8080)
+Open **`http://127.0.0.1:5200`**. API calls are proxied to the backend on `:8700`.
 
-### 5. Build Frontend (SPA)
+### 6. (Optional) Single-port build
+
+To serve the SPA directly from the Go backend (as in production):
 
 ```bash
 cd frontend
-bun run build
-# Output: frontend/dist/
+bun run build          # outputs frontend/dist/
 ```
 
-Setelah build, akses `http://localhost:8080` — Go backend serve SPA langsung.
+Then the backend serves the built SPA, the API, and Swagger from a single port.
+
+> 💡 **Prefer one command?** From `backend/`, `docker compose up -d` builds and runs the whole
+> stack (app + Postgres + Redis + MinIO) on `http://localhost:8080` — no separate frontend dev
+> server needed. Use the two-process flow above only when actively developing the frontend.
 
 ## Useful Commands
 

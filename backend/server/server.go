@@ -260,7 +260,7 @@ func BuildAppContainer(app *App) *AppContainer {
 
 	// Shops Module
 	shopsRepo := shops_repo.New(app.DB.GetPool())
-	shopsService := shops.NewShopService(shopsRepo, userRepo, app.Logger)
+	shopsService := shops.NewShopService(shopsRepo, app.DB.GetPool(), app.Logger)
 	shopsHandler := shops.NewShopHandler(shopsService, app.Validator)
 
 	// RBAC Module

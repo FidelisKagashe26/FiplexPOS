@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/dialog.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { Input } from "@/components/ui/input.tsx";
+import { PasswordInput } from "@/components/ui/password-input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Loader2 } from "lucide-react";
@@ -193,10 +194,10 @@ export function UserFormDialog({ open, onOpenChange, userToEdit }: {
                                     <div className="grid grid-cols-4 items-center gap-4">
                                         <Label htmlFor={field.name} className="text-right">{t('users.form.password')}</Label>
                                         <div className="col-span-3 flex flex-col gap-1">
-                                            <Input
+                                            <PasswordInput
                                                 id={field.name}
                                                 name={field.name}
-                                                type="password"
+
                                                 placeholder={t('users.form.password_placeholder')}
                                                 value={field.state.value}
                                                 onBlur={field.handleBlur}

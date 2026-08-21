@@ -3,6 +3,7 @@ import { useForm } from "@tanstack/react-form";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input"
 import { Label } from "@/components/ui/label";
 import { useTranslation } from "react-i18next";
 import { useShiftContext } from "@/context/ShiftContext";
@@ -79,9 +80,9 @@ export const OpenShiftModal: React.FC = () => {
                         children={(field) => (
                             <div className="grid w-full gap-1.5">
                                 <Label htmlFor={field.name}>{t('shift.open_modal.password')}</Label>
-                                <Input
+                                <PasswordInput
                                     id={field.name}
-                                    type="password"
+
                                     name={field.name}
                                     value={field.state.value}
                                     onBlur={field.handleBlur}

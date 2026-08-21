@@ -25,9 +25,21 @@ func NewRBACHandler(service IRBACService, resolver *authz.Resolver, validate val
 	}
 }
 
+// Roles are an owner concern. The platform superadmin manages shops, while the
+// owner of the active shop creates its staff roles and selects permissions.
+func (h *RBACHandler) requireShopRoleAdministrator(c fiber.Ctx) error {
+	if fmt.Sprintf("%v", c.Locals(authz.LocalRole)) == "superadmin" {
+		return c.Status(fiber.StatusForbidden).JSON(common.ErrorResponse{Message: "roles are managed by the shop owner"})
+	}
+	return nil
+}
+
 // CreateRole creates a new role for a shop.
 // @Router /roles [post]
 func (h *RBACHandler) CreateRole(c fiber.Ctx) error {
+	if err := h.requireShopRoleAdministrator(c); err != nil {
+		return err
+	}
 	var req CreateRoleRequest
 	if err := c.Bind().Body(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(common.ErrorResponse{Message: "invalid request body", Error: err.Error()})
@@ -46,6 +58,9 @@ func (h *RBACHandler) CreateRole(c fiber.Ctx) error {
 // ListRoles lists all roles.
 // @Router /roles [get]
 func (h *RBACHandler) ListRoles(c fiber.Ctx) error {
+	if err := h.requireShopRoleAdministrator(c); err != nil {
+		return err
+	}
 	res, err := h.service.ListRoles(c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(common.ErrorResponse{Message: "failed to fetch roles"})
@@ -66,6 +81,9 @@ func (h *RBACHandler) ListPermissions(c fiber.Ctx) error {
 // GetRolePermissions returns the permissions currently attached to a role.
 // @Router /roles/{id}/permissions [get]
 func (h *RBACHandler) GetRolePermissions(c fiber.Ctx) error {
+	if err := h.requireShopRoleAdministrator(c); err != nil {
+		return err
+	}
 	roleID, err := uuid.Parse(c.Params("id"))
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(common.ErrorResponse{Message: "invalid role id"})
@@ -81,6 +99,9 @@ func (h *RBACHandler) GetRolePermissions(c fiber.Ctx) error {
 // the frontend "Save Permissions" button calls.
 // @Router /roles/{id}/permissions [put]
 func (h *RBACHandler) SetRolePermissions(c fiber.Ctx) error {
+	if err := h.requireShopRoleAdministrator(c); err != nil {
+		return err
+	}
 	roleID, err := uuid.Parse(c.Params("id"))
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(common.ErrorResponse{Message: "invalid role id"})
@@ -101,6 +122,9 @@ func (h *RBACHandler) SetRolePermissions(c fiber.Ctx) error {
 // AssignUserRole links a user to a role within a shop.
 // @Router /roles/assign [post]
 func (h *RBACHandler) AssignUserRole(c fiber.Ctx) error {
+	if err := h.requireShopRoleAdministrator(c); err != nil {
+		return err
+	}
 	var req AssignUserRoleRequest
 	if err := c.Bind().Body(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(common.ErrorResponse{Message: "invalid request body", Error: err.Error()})
@@ -136,8 +160,8 @@ func (h *RBACHandler) MyPermissions(c fiber.Ctx) error {
 
 	role := fmt.Sprintf("%v", c.Locals(authz.LocalRole))
 
-	// Admin (owner tier) implicitly holds every permission.
-	if role == "admin" {
+	// Only the platform superadmin implicitly holds every permission.
+	if role == "superadmin" {
 		return c.Status(fiber.StatusOK).JSON(common.SuccessResponse{Data: MyPermissionsResponse{
 			Role:        role,
 			Permissions: authz.AllPermissionNames(),

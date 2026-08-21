@@ -1,14 +1,15 @@
 package shops
 
 import (
-	"POS-fiplex/internal/common"
 	"POS-fiplex/internal/shops/repository"
-	user_repo "POS-fiplex/internal/user/repository"
 	"POS-fiplex/pkg/logger"
+	"POS-fiplex/pkg/utils"
 	"context"
-	"errors"
+	"fmt"
+	"strings"
 
-	"github.com/jackc/pgx/v5"
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type IShopService interface {
@@ -16,96 +17,79 @@ type IShopService interface {
 	ListShops(ctx context.Context) (*ListShopsResponse, error)
 }
 
-// OwnerLookup is the slice of the user repository the shops service needs to
-// resolve an owner's email to their user id.
-type OwnerLookup interface {
-	GetUserByEmail(ctx context.Context, email string) (user_repo.User, error)
-}
-
 type ShopService struct {
-	repo  repository.Querier
-	users OwnerLookup
-	log   logger.ILogger
+	repo repository.Querier
+	pool *pgxpool.Pool
+	log  logger.ILogger
 }
 
-func NewShopService(repo repository.Querier, users OwnerLookup, log logger.ILogger) IShopService {
-	return &ShopService{
-		repo:  repo,
-		users: users,
-		log:   log,
-	}
+func NewShopService(repo repository.Querier, pool *pgxpool.Pool, log logger.ILogger) IShopService {
+	return &ShopService{repo: repo, pool: pool, log: log}
 }
 
+// CreateShop onboards a tenant and its owner in one atomic operation. The shop
+// owns its email and phone; the owner uses the same email solely to log in.
 func (s *ShopService) CreateShop(ctx context.Context, req CreateShopRequest) (*ShopResponse, error) {
-	var address *string
-	if req.Address != "" {
-		address = &req.Address
-	}
-
-	// shops.owner_id is NOT NULL and references users(id); resolve the owner by email.
-	owner, err := s.users.GetUserByEmail(ctx, req.OwnerEmail)
+	tx, err := s.pool.Begin(ctx)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, common.ErrNotFound
-		}
-		s.log.Errorf("CreateShop | failed to look up owner %q: %v", req.OwnerEmail, err)
+		return nil, err
+	}
+	defer tx.Rollback(ctx)
+
+	ownerID, err := uuid.NewV7()
+	if err != nil {
+		return nil, err
+	}
+	passwordHash, err := utils.HashPassword(req.Password)
+	if err != nil {
+		return nil, err
+	}
+	username := fmt.Sprintf("%s-%s", strings.ToLower(strings.ReplaceAll(strings.TrimSpace(req.OwnerName), " ", "-")), ownerID.String()[:8])
+	if _, err = tx.Exec(ctx, `INSERT INTO users (id, username, email, password_hash, role, is_active) VALUES ($1,$2,$3,$4,'admin',true)`, ownerID, username, req.Email, passwordHash); err != nil {
 		return nil, err
 	}
 
-	shop, err := s.repo.CreateShop(ctx, repository.CreateShopParams{
-		Name:     req.Name,
-		Address:  address,
-		OwnerID:  owner.ID,
-		IsActive: true,
-	})
+	res := &ShopResponse{OwnerID: &ownerID, IsActive: true}
+	err = tx.QueryRow(ctx, `INSERT INTO shops (name,address,email,phone,owner_id,is_active) VALUES ($1,NULLIF($2,''),$3,$4,$5,true) RETURNING id,name,COALESCE(address,''),email,phone,created_at`, req.Name, req.Address, req.Email, req.Phone, ownerID).Scan(&res.ID, &res.Name, &res.Address, &res.Email, &res.Phone, &res.CreatedAt)
 	if err != nil {
-		s.log.Errorf("CreateShop | failed to create shop: %v", err)
 		return nil, err
 	}
 
-	var resAddress string
-	if shop.Address != nil {
-		resAddress = *shop.Address
+	var ownerRoleID uuid.UUID
+	if err = tx.QueryRow(ctx, `INSERT INTO roles (shop_id,name,description) VALUES ($1,'Owner','Full access within this shop') RETURNING id`, res.ID).Scan(&ownerRoleID); err != nil {
+		return nil, err
 	}
-
-	return &ShopResponse{
-		ID:        shop.ID,
-		Name:      shop.Name,
-		Address:   resAddress,
-		OwnerID:   &shop.OwnerID,
-		IsActive:  shop.IsActive,
-		CreatedAt: shop.CreatedAt.Time,
-	}, nil
+	if _, err = tx.Exec(ctx, `INSERT INTO role_permissions (role_id, permission_id) SELECT $1,id FROM permissions WHERE module <> 'shops'`, ownerRoleID); err != nil {
+		return nil, err
+	}
+	if _, err = tx.Exec(ctx, `INSERT INTO user_shop_roles (user_id,shop_id,role_id) VALUES ($1,$2,$3)`, ownerID, res.ID, ownerRoleID); err != nil {
+		return nil, err
+	}
+	if err = tx.Commit(ctx); err != nil {
+		return nil, err
+	}
+	return res, nil
 }
 
 func (s *ShopService) ListShops(ctx context.Context) (*ListShopsResponse, error) {
-	shops, err := s.repo.ListAllShops(ctx)
+	rows, err := s.pool.Query(ctx, `SELECT id,name,COALESCE(address,''),COALESCE(email,''),COALESCE(phone,''),owner_id,is_active,created_at FROM shops ORDER BY created_at DESC`)
 	if err != nil {
 		s.log.Errorf("ListShops | failed to list shops: %v", err)
 		return nil, err
 	}
-
-	res := &ListShopsResponse{
-		Data: make([]ShopResponse, 0, len(shops)),
-	}
-
-	for _, shop := range shops {
-		var resAddress string
-		if shop.Address != nil {
-			resAddress = *shop.Address
+	defer rows.Close()
+	res := &ListShopsResponse{Data: []ShopResponse{}}
+	for rows.Next() {
+		var shop ShopResponse
+		var owner uuid.UUID
+		if err := rows.Scan(&shop.ID, &shop.Name, &shop.Address, &shop.Email, &shop.Phone, &owner, &shop.IsActive, &shop.CreatedAt); err != nil {
+			return nil, err
 		}
-		
-		owner := shop.OwnerID
-
-		res.Data = append(res.Data, ShopResponse{
-			ID:        shop.ID,
-			Name:      shop.Name,
-			Address:   resAddress,
-			OwnerID:   &owner,
-			IsActive:  shop.IsActive,
-			CreatedAt: shop.CreatedAt.Time,
-		})
+		shop.OwnerID = &owner
+		res.Data = append(res.Data, shop)
 	}
-
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
 	return res, nil
 }

@@ -7,15 +7,17 @@ import (
 type UserRole string
 
 const (
-	UserRoleAdmin   UserRole = "admin"
-	UserRoleManager UserRole = "manager"
-	UserRoleCashier UserRole = "cashier"
+	UserRoleSuperAdmin UserRole = "superadmin"
+	UserRoleAdmin      UserRole = "admin"
+	UserRoleManager    UserRole = "manager"
+	UserRoleCashier    UserRole = "cashier"
 )
 
 var RoleLevel = map[UserRole]int{
-	UserRoleAdmin:   3,
-	UserRoleManager: 2,
-	UserRoleCashier: 1,
+	UserRoleSuperAdmin: 4,
+	UserRoleAdmin:      3,
+	UserRoleManager:    2,
+	UserRoleCashier:    1,
 }
 
 // RoleMiddleware checks if the user's role meets the minimum required role.

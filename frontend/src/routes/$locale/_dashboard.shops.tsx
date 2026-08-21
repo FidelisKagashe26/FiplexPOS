@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Store, Plus, Search, MoreHorizontal, CheckCircle2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { PasswordInput } from "@/components/ui/password-input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
@@ -16,9 +17,11 @@ export const Route = createFileRoute('/$locale/_dashboard/shops')({
 })
 
 function ShopsPage() {
+    const { locale } = useParams({ from: '/$locale/_dashboard' })
+    const navigate = useNavigate()
     const [searchQuery, setSearchQuery] = useState('')
     const [isAddShopOpen, setIsAddShopOpen] = useState(false)
-    const [newShop, setNewShop] = useState({ name: '', address: '', owner_email: '' })
+    const [newShop, setNewShop] = useState({ name: '', address: '', email: '', phone: '', owner_name: '', password: '' })
     const [activeShopId, setActiveShopId] = useState<string | null>(() => localStorage.getItem('activeShopId'))
     const queryClient = useQueryClient()
 
@@ -27,7 +30,9 @@ function ShopsPage() {
     const selectShop = (shopId: string) => {
         localStorage.setItem('activeShopId', shopId)
         setActiveShopId(shopId)
+        window.dispatchEvent(new Event('active-shop-changed'))
         queryClient.invalidateQueries()
+        navigate({ to: '/$locale', params: { locale } })
     }
 
     const { data: shopsResponse, isLoading } = useQuery({
@@ -46,7 +51,7 @@ function ShopsPage() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['shops'] })
             setIsAddShopOpen(false)
-            setNewShop({ name: '', address: '', owner_email: '' })
+            setNewShop({ name: '', address: '', email: '', phone: '', owner_name: '', password: '' })
         }
     })
 
@@ -89,7 +94,7 @@ function ShopsPage() {
                             <DialogHeader>
                                 <DialogTitle>Register New Shop</DialogTitle>
                                 <DialogDescription>
-                                    Create a new tenant workspace. An owner account will also be required.
+                                    This creates the shop and its owner account together. The email and phone belong to the shop.
                                 </DialogDescription>
                             </DialogHeader>
                             <div className="grid gap-4 py-4">
@@ -102,8 +107,20 @@ function ShopsPage() {
                                     <Input id="address" placeholder="e.g. Makumbusho, Dar es Salaam" value={newShop.address} onChange={e => setNewShop({...newShop, address: e.target.value})} />
                                 </div>
                                 <div className="grid gap-2">
-                                    <label htmlFor="owner_email" className="text-sm font-medium">Owner Email</label>
-                                    <Input id="owner_email" type="email" placeholder="owner@shop.com" value={newShop.owner_email} onChange={e => setNewShop({...newShop, owner_email: e.target.value})} />
+                                    <label htmlFor="email" className="text-sm font-medium">Shop Email</label>
+                                    <Input id="email" type="email" placeholder="shop@example.com" value={newShop.email} onChange={e => setNewShop({...newShop, email: e.target.value})} />
+                                </div>
+                                <div className="grid gap-2">
+                                    <label htmlFor="phone" className="text-sm font-medium">Shop Phone</label>
+                                    <Input id="phone" placeholder="e.g. 0712 000 000" value={newShop.phone} onChange={e => setNewShop({...newShop, phone: e.target.value})} />
+                                </div>
+                                <div className="grid gap-2">
+                                    <label htmlFor="owner_name" className="text-sm font-medium">Owner Name</label>
+                                    <Input id="owner_name" placeholder="Full name" value={newShop.owner_name} onChange={e => setNewShop({...newShop, owner_name: e.target.value})} />
+                                </div>
+                                <div className="grid gap-2">
+                                    <label htmlFor="password" className="text-sm font-medium">Owner Password</label>
+                                    <PasswordInput id="password" value={newShop.password} onChange={e => setNewShop({...newShop, password: e.target.value})} />
                                 </div>
                             </div>
                             <DialogFooter>
@@ -165,7 +182,7 @@ function ShopsPage() {
                                     </div>
                                 </TableCell>
                                 <TableCell className="text-muted-foreground">{shop.address || 'N/A'}</TableCell>
-                                <TableCell>{shop.owner_email || 'No Owner'}</TableCell>
+                                <TableCell>{shop.email || 'No email'}</TableCell>
                                 <TableCell>
                                     {shop.is_active ? (
                                         <Badge variant="default" className="bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20">Active</Badge>
@@ -185,7 +202,7 @@ function ShopsPage() {
                                         <DropdownMenuContent align="end">
                                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                             <DropdownMenuItem onClick={() => selectShop(shop.id)} disabled={activeShopId === shop.id}>
-                                                {activeShopId === shop.id ? 'Currently Active' : 'Set as Active Shop'}
+                                                {activeShopId === shop.id ? 'Currently Active' : 'Open Store Workspace'}
                                             </DropdownMenuItem>
                                             <DropdownMenuItem>Edit Settings</DropdownMenuItem>
                                             <DropdownMenuSeparator />

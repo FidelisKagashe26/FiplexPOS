@@ -34,7 +34,7 @@ type UpdateRolePermissionsRequest struct {
 // AssignUserRoleRequest links a user to a role within a shop.
 type AssignUserRoleRequest struct {
 	UserID uuid.UUID `json:"user_id" validate:"required"`
-	ShopID uuid.UUID `json:"shop_id" validate:"required"`
+	ShopID uuid.UUID `json:"shop_id,omitempty" validate:"omitempty"`
 	RoleID uuid.UUID `json:"role_id" validate:"required"`
 }
 

@@ -6,6 +6,7 @@ import { KeyRound, Loader2, Save } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { Input } from "@/components/ui/input.tsx";
+import { PasswordInput } from "@/components/ui/password-input"
 import { Button } from "@/components/ui/button.tsx";
 import { useTranslation } from 'react-i18next';
 import { useForm } from '@tanstack/react-form';
@@ -82,10 +83,10 @@ export function UpdatePasswordCard() {
                         children={(field) => (
                             <div className="grid gap-2">
                                 <Label htmlFor={field.name}>{t('account.password.current_password')}</Label>
-                                <Input
+                                <PasswordInput
                                     id={field.name}
                                     name={field.name}
-                                    type="password"
+
                                     value={field.state.value}
                                     onBlur={field.handleBlur}
                                     onChange={(e) => field.handleChange(e.target.value)}
@@ -104,10 +105,10 @@ export function UpdatePasswordCard() {
                         children={(field) => (
                             <div className="grid gap-2">
                                 <Label htmlFor={field.name}>{t('account.password.new_password')}</Label>
-                                <Input
+                                <PasswordInput
                                     id={field.name}
                                     name={field.name}
-                                    type="password"
+
                                     value={field.state.value}
                                     onBlur={field.handleBlur}
                                     onChange={(e) => field.handleChange(e.target.value)}
@@ -126,10 +127,10 @@ export function UpdatePasswordCard() {
                         children={(field) => (
                             <div className="grid gap-2">
                                 <Label htmlFor={field.name}>{t('account.password.confirm_password')}</Label>
-                                <Input
+                                <PasswordInput
                                     id={field.name}
                                     name={field.name}
-                                    type="password"
+
                                     value={field.state.value}
                                     onBlur={field.handleBlur}
                                     onChange={(e) => field.handleChange(e.target.value)}

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Input } from '@/components/ui/input'
+import { PasswordInput } from "@/components/ui/password-input"
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { useForm } from '@tanstack/react-form'
@@ -119,14 +120,14 @@ export function LoginForm({ t, auth, mode, onSubmitSuccess }: LoginFormProps) {
                             <Label htmlFor={field.name} className={labelClassName}>
                                 {t('auth.password')}
                             </Label>
-                            <Input
+                            <PasswordInput
                                 id={field.name}
                                 name={field.name}
                                 value={field.state.value}
                                 onBlur={field.handleBlur}
                                 onChange={(event) => field.handleChange(event.target.value)}
                                 placeholder={t('auth.password_placeholder')}
-                                type="password"
+
                                 autoComplete="current-password"
                                 className={inputClassName}
                             />
