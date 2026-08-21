@@ -2,6 +2,11 @@
 FROM oven/bun:alpine AS frontend-builder
 WORKDIR /app/frontend
 
+# puppeteer is a dependency, but its postinstall downloads a headless Chrome
+# that the static SPA build does not need — and the download 403s in CI, failing
+# `bun install`. Skip the browser download; the vite build never launches Chrome.
+ENV PUPPETEER_SKIP_DOWNLOAD=true
+
 # Install dependencies
 COPY frontend/package.json frontend/bun.lock ./
 RUN bun install
